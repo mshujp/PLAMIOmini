@@ -1,0 +1,156 @@
+# PLAMIOmini
+
+> PLAMIOmini is a lightweight, single-game Arduino runtime for AI-assisted game development. It provides unified Graphics, Input, Audio, Storage, timing, collision, tween, and save-data APIs for RP2040, RP2350, and ESP32 targets.
+
+PLAMIOmini is a streamlined Arduino IDE version of PLAMIO. Games derive from `PLAMIOmini::GameMini` and are combined with one concrete display, input, audio, and storage implementation in a complete Arduino `.ino` sketch. The runtime owns the approximately 30 FPS main loop; `setup()` calls `PLAMIOmini::start(...)`, and Arduino `loop()` remains empty.
+
+For code generation, treat the supplied headers as authoritative. Never invent classes, enum values, configuration fields, constructor arguments, fonts, colors, buttons, sound presets, or function signatures. The public API in `src/PLAMIOmini.h` has the highest priority, followed by the selected driver headers and hardware configuration, the AI guidelines, and the game design document.
+
+## Essential Documentation
+
+- [README](README.md): Project overview, installation, supported platforms and hardware, learning path, and sample index.
+- [Public API](src/PLAMIOmini.h): Authoritative game-facing API for `GameMini`, Graphics, Input, Audio, Storage, SaveData, Platform, Math, Collision, Tween, and Display constants.
+- [AI Game Generation Guidelines](docs/PLAMIOmini_AI_GUIDELINES.md): Mandatory rules for generating compile-ready PLAMIOmini Arduino sketches.
+- [Hardware Configuration Template](docs/PLAMIOmini_HARDWARE_CONFIG_TEMPLATE.md): Selects the board, display, input, audio, storage, pins, buses, and hardware settings used by generated sketches.
+- [Game Design Template](docs/PLAMIOmini_GAME_DESIGN_TEMPLATE.md): English game-design worksheet for AI-assisted generation.
+- [Game Design Template (Japanese)](docs/PLAMIOmini_GAME_DESIGN_TEMPLATE_JP.md): Japanese game-design worksheet.
+- [License](LICENSE.txt): MIT License.
+
+## Driver Headers
+
+Read the concrete driver header selected by the hardware configuration before creating configuration objects or instances.
+
+### Graphics
+
+- [GraphicsILI9341](src/graphics/GraphicsILI9341.h): ILI9341 color display driver and configuration.
+- [GraphicsSSD1306](src/graphics/GraphicsSSD1306.h): SSD1306 monochrome display driver and configuration.
+- [GraphicsBase](src/graphics/GraphicsBase.h): Internal common graphics-driver interface.
+
+### Input
+
+- [GPIO Button Definitions](src/input/GpioButtons.h): GPIO button-related declarations.
+- [InputGpioButtons](src/input/InputGpioButtons.h): Direct GPIO button input driver.
+- [InputSnes](src/input/InputSnes.h): SNES controller input driver.
+- [InputPS2](src/input/InputPS2.h): PS2 controller input driver.
+- [InputBase](src/input/InputBase.h): Common button mapping and input-driver interface.
+
+### Audio
+
+- [AudioPWM](src/audio/AudioPWM.h): PWM tone-audio driver.
+- [AudioI2S](src/audio/AudioI2S.h): I2S tone-audio driver.
+- [AudioStub](src/audio/AudioStub.h): No-audio implementation.
+- [AudioBase](src/audio/AudioBase.h): Common audio playback, music, sound-effect, and volume behavior.
+
+### Storage
+
+- [StorageSD](src/storage/StorageSD.h): SD-card storage driver.
+- [StorageEEPROM](src/storage/StorageEEPROM.h): EEPROM-style storage driver.
+- [StorageStub](src/storage/StorageStub.h): No-storage implementation.
+- [StorageBase](src/storage/StorageBase.h): Common storage-driver interface.
+
+## Required Game Structure
+
+A game derives from `PLAMIOmini::GameMini` and overrides these exact functions:
+
+```cpp
+void onInit(PLAMIOmini::Storage& storage) override;
+void onUpdate(PLAMIOmini::Input& input,
+              PLAMIOmini::Audio& audio,
+              PLAMIOmini::Storage& storage,
+              float deltaSec) override;
+bool onDraw(PLAMIOmini::Graphics& graphics,
+            bool requestFullRedraw) override;
+void onTerminate(PLAMIOmini::Storage& storage) override;
+```
+
+A complete sketch normally declares, at global scope and in this order:
+
+1. One selected graphics configuration and instance.
+2. One selected input configuration or button mapping and instance.
+3. One selected storage configuration and instance.
+4. One selected audio configuration and instance.
+5. One `GameMini`-derived game instance.
+
+Then call:
+
+```cpp
+void setup()
+{
+    PLAMIOmini::start(graphics, input, storage, audio, game);
+}
+
+void loop()
+{
+}
+```
+
+## Compile-Safety Rules
+
+- Use only symbols declared exactly in the supplied headers.
+- Never infer enum names from naming patterns. For example, common-looking names such as `Graphics::SIZE_12`, `Graphics::SIZE_24B`, or `Graphics::DARKBLUE` are invalid unless explicitly declared.
+- Verify every `Graphics::Font`, `Graphics::Color`, `Input::Button`, `Audio::SE`, method call, configuration field, constructor, and override signature before returning generated code.
+- Pass exactly one button to each input query; test combinations with separate calls.
+- Do not use `HOME`, `VOL_UP`, `VOL_DOWN`, or `MUTE` for game mechanics.
+- Request sound from `onUpdate()`, not `onDraw()`, and trigger it only once per event.
+- Perform packaged resource-file I/O during `onInit()`, never during `onUpdate()` or `onDraw()`.
+- Prefer fixed-size arrays and static constant assets. Avoid dynamic allocation and dynamic STL containers.
+- Do not call `GameMini::init()`, `update()`, `draw()`, or `terminate()` directly.
+
+## Rendering and Timing
+
+- Use `deltaSec` for continuous movement and physics.
+- Use `Platform::getMsec()` and unsigned elapsed-time arithmetic for real-time timers.
+- Do not assume every frame is exactly 1/30 second.
+- Fast-moving objects may use a bounded number of physics substeps.
+- `onDraw()` must honor dirty rendering:
+
+```cpp
+if (!requestFullRedraw && !dirty)
+{
+    return false;
+}
+
+// Draw the complete frame.
+
+dirty = false;
+return true;
+```
+
+- Set `dirty = true` whenever visible state changes.
+- ILI9341 visible size is 320 x 240; SSD1306 visible size is 128 x 64.
+- Use only fonts declared in `Graphics::Font` and measure text when fitting or centering it.
+- Important UI should preferably remain above the temporary volume OSD near the bottom of the ILI9341 screen, while backgrounds may extend to the bottom edge.
+
+## Examples and Learning Path
+
+- [00A AI Game Generation](examples/00A_AI_Game_Generation/00A_AI_Game_Generation.ino): Recommended AI-assisted workflow and required project files.
+- [00B Hardware Setup](examples/00B_Hardware_Setup/00B_Hardware_Setup.ino): Driver includes, configuration structures, constructors, and hardware selection reference.
+- [01 Hello PLAMIO](examples/01_Hello_PLAMIO/01_Hello_PLAMIO.ino): Minimal ILI9341 game structure.
+- [01 Hello PLAMIO SSD1306](examples/01_Hello_PLAMIO_SSD1306/01_Hello_PLAMIO_SSD1306.ino): Minimal SSD1306 game structure.
+- [02 Input Basics](examples/02_Input_Basics/02_Input_Basics.ino): Button input and movement.
+- [03 Graphics Basics](examples/03_Graphics_Basics/03_Graphics_Basics.ino): Shapes, colors, fonts, and alignment.
+- [04 Audio Basics](examples/04_Audio_Basics/04_Audio_Basics.ino): Sound effects and music.
+- [05 Save Data](examples/05_Save_Data/05_Save_Data.ino): SaveData loading and saving.
+- [06 Collision](examples/06_Collision/06_Collision.ino): Collision API demonstrations.
+- [07 Animation](examples/07_Animation/07_Animation.ino): Time-based animation and Tween.
+- [08 Breakout](examples/08_Breakout/08_Breakout.ino): Complete real-time action game.
+- [09 Star Dodge](examples/09_Star_Dodge/09_Star_Dodge.ino): Avoidance game with visual effects.
+- [10 Reversi](examples/10_Reversi/10_Reversi.ino): Board game and CPU logic.
+- [11 Memory Tiles](examples/11_Memory_Tiles/11_Memory_Tiles.ino): Memory game with state transitions.
+
+## Optional Implementation Sources
+
+These files implement the runtime and are useful when diagnosing behavior or extending PLAMIOmini, but game generation should normally rely on the public API and selected driver headers.
+
+- [System Runtime](src/core/SystemMini.cpp): Main loop, audio worker, volume controls, OSD, and startup behavior.
+- [Graphics Implementations](src/graphics/): ILI9341, SSD1306, and shared graphics implementation.
+- [Input Implementations](src/input/): GPIO, SNES, PS2, and shared input implementation.
+- [Audio Implementations](src/audio/): PWM, I2S, stub, sound effects, music, and volume implementation.
+- [Storage Implementations](src/storage/): SD, EEPROM, stub, and shared storage implementation.
+- [Utility Implementations](src/util/): Platform timing, Math, Collision, Tween, SaveData, screenshots, and synchronization helpers.
+
+## Package Metadata
+
+- [Arduino Library Metadata](library.properties): Library name, version, architectures, dependency, and public include.
+- [PlatformIO Configuration](platformio.ini): Development and build configuration.
+- [SDK Packaging Script](scripts/package_sdk.py): Creates the AI-facing SDK and project archives.

@@ -1,0 +1,48 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Arduino IDE / Arduino CLI build output
+build/
+build-*/
+out/
+*.ino.cpp
+
+# Compiled objects, libraries, and firmware
+*.o
+*.obj
+*.a
+*.elf
+*.bin
+*.hex
+*.map
+*.uf2
+*.lst
+*.sym
+*.d
+*.su
+
+# Local editor settings
+.vscode/
+.idea/
+*.code-workspace
+
+# Local AI working memory
+AI_NOTES.md
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.user
+*.swp
+*.swo
+*~
+
+# Operating-system metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
