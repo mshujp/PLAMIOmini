@@ -191,6 +191,10 @@ Based on current development experience:
 
 Ask an AI assistant to read this page, then describe your hardware configuration and request advice on suitable pin assignments.
 
+## GPIO BUTTONS
+
+Internal pull-up resistors are used.
+
 ## SD Card SPI
 
 For SD card builds, the following configuration is recommended and has been verified on both RP2040 and RP2350.
@@ -204,9 +208,10 @@ This configuration has been verified on both RP2040 and RP2350 and is recommende
 
 ### SD Card
 
-> [!IMPORTANT]
-> PLAMIO supports **SDHC** and **SDXC** memory cards.
-> Standard **SD cards (2GB and smaller)** are **not supported**.
+Use an SDHC or SDXC card with a capacity of 4 GB or more.
+
+Although the Arduino-based PLAMIOmini implementation may work with some 2 GB standard SD cards,
+they are not officially supported. This keeps SD card requirements consistent with the full PLAMIO framework.
 
 > [!WARNING]
 > Although PLAMIO provides a software shutdown option, embedded systems can still lose power unexpectedly (for example, due to battery removal or depletion).
