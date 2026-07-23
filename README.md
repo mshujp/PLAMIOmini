@@ -8,7 +8,7 @@ A lightweight game framework designed for AI-assisted game development.
 
 # Features
 
-PLAMIOmini is a streamlined version of [PLAMIO](https://github.com/mshujp/PLAMIO/) adapted for the Arduino IDE.
+`PLAMIO mini` is a streamlined version of [PLAMIO](https://github.com/mshujp/PLAMIO/) adapted for the Arduino IDE.
 For the full feature set, use PLAMIO instead.
 
 -   Supports the creation of a single game.
@@ -30,11 +30,13 @@ For the full feature set, use PLAMIO instead.
 | Hardware |  |
 | :---: | :---: |
 | ![](docs/images/01.jpg) | ![](docs/images/02.jpg) |
+| ![](docs/images/03.jpg) | ![](docs/images/04.jpg) |
 
 | ScreenShots | |
 | :---: | :---: |
 | ![](docs/images/ss01.png) | ![](docs/images/ss02.png) |
 | ![](docs/images/ss03.png) | ![](docs/images/ss04.png) |
+| ![](docs/images/ss05.png) | ![](docs/images/ss06.png) |
 
 ------------------------------------------------------------------------
 
@@ -58,14 +60,9 @@ This allows game logic to remain clean, portable, and easy to generate.
 
 ------------------------------------------------------------------------
 
-# Required Libraries
+# Included Libraries
   
 - [LovyanGFX](https://github.com/lovyan03/LovyanGFX)
-
-
-Please install LovyanGFX via the Arduino Library Manager:
-
-`Tools` → `Manage Libraries...` (or Ctrl+Shift+I / Cmd+Shift+I), search for `LovyanGFX`, and click Install.
 
 ------------------------------------------------------------------------
 
