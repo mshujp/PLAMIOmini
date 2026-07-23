@@ -10,7 +10,7 @@
 namespace PLAMIOmini {
 namespace {
 
-constexpr const char* SCREENSHOT_GAME_ID = "_screenshots";
+constexpr const char* SCREENSHOT_GAME_ID = "screenshots";
 
 struct ScreenShotContext
 {
@@ -109,14 +109,12 @@ bool saveScreenShot(GraphicsBase& graphics, uint16_t width, uint16_t height,
 
 bool ScreenShot::save(GraphicsILI9341& graphics, StorageSD& storage, const char* fileName)
 {
-    return saveScreenShot(graphics, Display::ILI9341_SCREEN_W,
-                          Display::ILI9341_SCREEN_H, storage, fileName);
+    return saveScreenShot(graphics, Display::ILI9341_SCREEN_W, Display::ILI9341_SCREEN_H, storage, fileName);
 }
 
 bool ScreenShot::save(GraphicsSSD1306& graphics, StorageSD& storage, const char* fileName)
 {
-    return saveScreenShot(graphics, Display::SSD1306_SCREEN_W,
-                          Display::SSD1306_SCREEN_H, storage, fileName);
+    return saveScreenShot(graphics, Display::SSD1306_SCREEN_W, Display::SSD1306_SCREEN_H, storage, fileName);
 }
 
 } // namespace PLAMIOmini

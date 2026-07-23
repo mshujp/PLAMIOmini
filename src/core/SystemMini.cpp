@@ -1,8 +1,9 @@
-#include "../audio/AudioBase.h"
+﻿#include "../audio/AudioBase.h"
 #include "../graphics/GraphicsBase.h"
 #include "../input/InputBase.h"
 #include "../storage/StorageBase.h"
 #include "../util/Platform.h"
+#include "../util/ScreenShot.h"
 
 #include "../graphics/GraphicsILI9341.h"
 #include "../graphics/GraphicsSSD1306.h"
@@ -32,10 +33,10 @@ namespace PLAMIOmini {
 class SystemMini
 {
 public:
-    SystemMini(GraphicsBase& graphics, InputBase& input, StorageBase& storage,
-               AudioBase& audio, GameMini& game);
+    SystemMini(GraphicsBase& graphics, InputBase& input, StorageBase& storage, AudioBase& audio, GameMini& game);
     SystemMini(const SystemMini&) = delete;
     SystemMini& operator=(const SystemMini&) = delete;
+    void setScreenShotContext(GraphicsILI9341* gi, StorageSD* sd);
 
     bool start();
 
@@ -45,6 +46,9 @@ private:
     StorageBase& storage;
     AudioBase& audio;
     GameMini& game;
+
+    GraphicsILI9341* graphicsILI9341 = nullptr;
+    StorageSD* storageSD = nullptr;
 
     std::atomic<bool> audioReady{false};
     std::atomic<bool> audioAvailable{false};
@@ -57,8 +61,8 @@ private:
     void audioWorker();
     void runFrame();
     void waitFor30Fps();
-    void updateVolume();
-    void drawVolumeOSD();
+    void updateSystem();
+    void drawOSD();
     void saveVolume(uint8_t volume);
     uint8_t loadVolume();
 
@@ -80,10 +84,15 @@ SystemMini* picoSystem = nullptr;
 
 } // namespace
 
-SystemMini::SystemMini(GraphicsBase& _graphics, InputBase& _input, StorageBase& _storage,
-                       AudioBase& _audio, GameMini& _game)
+SystemMini::SystemMini(GraphicsBase& _graphics, InputBase& _input, StorageBase& _storage, AudioBase& _audio, GameMini& _game)
     : graphics(_graphics), input(_input), storage(_storage), audio(_audio), game(_game)
 {
+}
+
+void SystemMini::setScreenShotContext(GraphicsILI9341* gi, StorageSD* sd) 
+{
+    graphicsILI9341 = gi;
+    storageSD = sd;
 }
 
 bool SystemMini::initialize()
@@ -175,17 +184,17 @@ void SystemMini::runFrame()
     const float delta = float(deltaMsec) / 1000.0f;
     lastFrameMsec = now;
     input.update();
-    updateVolume();
+    updateSystem();
     game.update(input, audio, storage, delta);
 
     const bool drew = game.draw(graphics, requestFullRedraw);
     if (drew)
     {
-        drawVolumeOSD();
+        drawOSD();
         while(graphics.push())
         {
             game.draw(graphics, true);
-            drawVolumeOSD();
+            drawOSD();
         }
         requestFullRedraw = false;
     }
@@ -200,7 +209,7 @@ void SystemMini::waitFor30Fps()
     while (static_cast<int32_t>(millis() - next) < 0) delay(1);
 }
 
-void SystemMini::updateVolume()
+void SystemMini::updateSystem()
 {
     if (input.justPressed(Input::MUTE))
     {
@@ -208,21 +217,31 @@ void SystemMini::updateVolume()
         requestFullRedraw = true;
         return;
     }
-    if (!input.justPressed(Input::VOL_DOWN) && !input.justPressed(Input::VOL_UP)) return;
-
-    const int8_t before = audio.getVolumeLevel();
-    if (input.justPressed(Input::VOL_DOWN)) audio.downVolume();
-    else audio.upVolume();
-
-    if (before != audio.getVolumeLevel())
+    if (input.justPressed(Input::VOL_UP) && input.pressed(Input::VOL_DOWN))
     {
-        saveVolume(audio.getVolumeLevel());
-        audio.playSE(&Audio::SE::NO_1, 1.0f);
-        requestFullRedraw = true;
+        if (graphicsILI9341 != nullptr && storageSD != nullptr)
+        {
+            ScreenShot ss;
+            ss.save(*graphicsILI9341, *storageSD);
+        }
+    }
+
+    if (input.justPressed(Input::VOL_UP) || input.justPressed(Input::VOL_DOWN))
+    {
+        const int8_t before = audio.getVolumeLevel();
+        if (input.justPressed(Input::VOL_DOWN)) audio.downVolume();
+        else audio.upVolume();
+
+        if (before != audio.getVolumeLevel())
+        {
+            saveVolume(audio.getVolumeLevel());
+            audio.playSE(&Audio::SE::NO_1, 1.0f);
+            requestFullRedraw = true;
+        }
     }
 }
 
-void SystemMini::drawVolumeOSD()
+void SystemMini::drawOSD()
 {
     const char* text = nullptr;
     const uint8_t volume = audio.getVolumeLevel();
@@ -284,57 +303,47 @@ void start(const GraphicsConfig& graphicsConfig, InputConfig& inputConfig,
     InputBase* inputDriver = nullptr;
     StorageBase* storageDriver = nullptr;
     AudioBase* audioDriver = nullptr;
+    GraphicsILI9341* gi = nullptr;
+    StorageSD* sd = nullptr;
 
     if (std::holds_alternative<GraphicsILI9341Config>(graphicsConfig))
     {
-        static GraphicsILI9341 instance(
-            std::get<GraphicsILI9341Config>(graphicsConfig)
-        );
+        static GraphicsILI9341 instance(std::get<GraphicsILI9341Config>(graphicsConfig));
         graphics = &instance;
+        gi = &instance;
     }
     else if (std::holds_alternative<GraphicsSSD1306Config>(graphicsConfig))
     {
-        static GraphicsSSD1306 instance(
-            std::get<GraphicsSSD1306Config>(graphicsConfig)
-        );
+        static GraphicsSSD1306 instance(std::get<GraphicsSSD1306Config>(graphicsConfig));
         graphics = &instance;
     }
 
     if (std::holds_alternative<InputGpioButtonsConfig>(inputConfig))
     {
-        static InputGpioButtons instance(
-            std::get<InputGpioButtonsConfig>(inputConfig)
-        );
+        static InputGpioButtons instance(std::get<InputGpioButtonsConfig>(inputConfig));
         inputDriver = &instance;
     }
     else if (std::holds_alternative<InputSnesConfig>(inputConfig))
     {
-        static InputSnes instance(
-            std::get<InputSnesConfig>(inputConfig)
-        );
+        static InputSnes instance(std::get<InputSnesConfig>(inputConfig));
         inputDriver = &instance;
     }
     else if (std::holds_alternative<InputPs2Config>(inputConfig))
     {
-        static InputPS2 instance(
-            std::get<InputPs2Config>(inputConfig)
-        );
+        static InputPS2 instance(std::get<InputPs2Config>(inputConfig));
         inputDriver = &instance;
     }
 
     if (std::holds_alternative<StorageEEPROMConfig>(storageConfig))
     {
-        static StorageEEPROM instance(
-            std::get<StorageEEPROMConfig>(storageConfig)
-        );
+        static StorageEEPROM instance(std::get<StorageEEPROMConfig>(storageConfig));
         storageDriver = &instance;
     }
     else if (std::holds_alternative<StorageSDConfig>(storageConfig))
     {
-        static StorageSD instance(
-            std::get<StorageSDConfig>(storageConfig)
-        );
+        static StorageSD instance(std::get<StorageSDConfig>(storageConfig));
         storageDriver = &instance;
+        sd = &instance;
     }
     else if (std::holds_alternative<StorageStubConfig>(storageConfig))
     {
@@ -344,16 +353,12 @@ void start(const GraphicsConfig& graphicsConfig, InputConfig& inputConfig,
 
     if (std::holds_alternative<AudioPWMConfig>(audioConfig))
     {
-        static AudioPWM instance(
-            std::get<AudioPWMConfig>(audioConfig)
-        );
+        static AudioPWM instance(std::get<AudioPWMConfig>(audioConfig));
         audioDriver = &instance;
     }
     else if (std::holds_alternative<AudioI2SConfig>(audioConfig))
     {
-        static AudioI2S instance(
-            std::get<AudioI2SConfig>(audioConfig)
-        );
+        static AudioI2S instance(std::get<AudioI2SConfig>(audioConfig));
         audioDriver = &instance;
     }
     else if (std::holds_alternative<AudioStubConfig>(audioConfig))
@@ -364,15 +369,13 @@ void start(const GraphicsConfig& graphicsConfig, InputConfig& inputConfig,
 
     if (!graphics || !inputDriver || !storageDriver || !audioDriver) return;
 
-    static SystemMini systemMini(
-        *graphics,
-        *inputDriver,
-        *storageDriver,
-        *audioDriver,
-        game
-    );
-
+    static SystemMini systemMini(*graphics, *inputDriver, *storageDriver, *audioDriver, game);
+    if (gi != nullptr && sd != nullptr)
+    {
+        systemMini.setScreenShotContext(gi, sd);
+    }
     systemMini.start();
 }
 
 } // namespace PLAMIOmini
+
