@@ -60,12 +60,6 @@ This allows game logic to remain clean, portable, and easy to generate.
 
 ------------------------------------------------------------------------
 
-# Included Libraries
-  
-- [LovyanGFX](https://github.com/lovyan03/LovyanGFX)
-
-------------------------------------------------------------------------
-
 # Install
 
 Download this project as a ZIP file, then install it from the Arduino IDE menu:
@@ -171,6 +165,32 @@ Based on current development experience:
 
 # Hardware Notes
 
+## Minimum Configuration
+
+- **Main board:** RP2040  
+  Examples: Waveshare RP2040 Zero
+- **Input:** About 7 tactile switches  
+  D-pad, A, B, and Start
+- **Display:** SSD1306
+- **Audio:** PWM  
+  Add a potentiometer for volume adjustment if needed.
+- **Storage:** Emulated EEPROM  
+  Uses the board's built-in flash storage.
+
+## Standard Configuration
+
+- **Main board:** RP2350 or ESP32  
+  Examples: Raspberry Pi Pico 2 or ESP32
+- **Input:** About 7 tactile switches  
+  D-pad, A, B, and Start
+- **Display:** ILI9341
+- **Audio:** I2S
+- **Storage:** SD card reader
+
+## Pin Assignment Advice
+
+Ask an AI assistant to read this page, then describe your hardware configuration and request advice on suitable pin assignments.
+
 ## SD Card SPI
 
 For SD card builds, the following configuration is recommended and has been verified on both RP2040 and RP2350.
@@ -194,29 +214,33 @@ This configuration has been verified on both RP2040 and RP2350 and is recommende
 
 ## PWM Audio
 
+Use a passive buzzer or an appropriate transistor/amplifier circuit.
+Do not connect a low-impedance speaker directly to a GPIO pin.
+
 PWM audio supports only **MUTE** or **ON**.
 If adjustable volume is required, use an external amplifier or a potentiometer.
 
+## I2S
+
+For RP2040 and RP2350, PLAMIOmini uses the I2S library included with the Earle Philhower Arduino-Pico core. LRCLK/WS must use the GPIO immediately following BCLK.
+
 ------------------------------------------------------------------------
 
-## Supported Hardware
+## PLAMIOmini Hardware Compatibility
 
-The following hardware configurations have been verified with PLAMIO.
+| Platform | ILI9341 | SSD1306 | PWM | I2S | GPIO | SNES | Emulated EEPROM | SD |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| RP2040 | ✅ | ✅ | ✅ |  | ✅ |  | ✅ | ✅ |
+| RP2350 | ✅ |  |  | ✅ |  | ✅ | ✅ *1 | ✅ |
+| ESP32 | ✅ | ✅ | ✅ | ✅ | ✅ |  | ✅ | ✅ |
+| ESP32-S3 |  |  |  |  |  |  |  |  |
+| ESP32-C3/C6 |  |  |  |  |  |  |  |  |
 
-| Target | Display | Input | Audio | Storage | Status |
-|--------|---------|-------|-------|---------|--------|
-| RP2040 | SSD1306 | GPIO Buttons | PWM | SD | ✅ Verified |
-| RP2040 | ILI9341 | GPIO Buttons | PWM | SD | ✅ Verified |
-| RP2350 | ILI9341 | SNES | I2S | SD | ✅ Verified |
+- ✅: Verified on actual hardware
+- Blank: Not yet tested. A blank cell does **not** mean unsupported or incompatible.
+  Some untested combinations may already be supported by the implementation, but they have not yet been verified on physical hardware.
 
-
-Additional hardware configurations can be supported by creating a new hardware profile under:
-
-```text
-system/platform/pico/boards/
-```
-
-Only the configurations listed above have been verified.
+*1: When emulated EEPROM is written while I2S audio is playing on RP2350, audible noise may occur. Using I2S and emulated EEPROM together is therefore not recommended.
 
 ------------------------------------------------------------------------
 
