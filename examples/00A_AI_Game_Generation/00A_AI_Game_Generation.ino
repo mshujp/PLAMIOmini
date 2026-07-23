@@ -24,15 +24,16 @@ Check the version of the PLAMIOmini library installed in Arduino IDE.
 
 STEP 2
 ------
-Download the following files for the SAME version as your installed
-PLAMIOmini library:
+Obtain the following files (must be the SAME version as your installed PLAMIOmini library):
 
 - PLAMIOmini_SDK.zip
 - PLAMIOmini_PROJECT.zip
 
+You can download them from the release page below, or find them in the `docs` folder of your unzipped library package.
+
 Download page:
 
-https://github.com/mshujp/PLAMIO/releases/
+https://github.com/mshujp/PLAMIOmini/releases/
 
 Do not mix files from different releases.
 
@@ -152,11 +153,12 @@ Arduino IDEにインストールされているPLAMIOminiライブラリの
 
 手順2
 -----
-インストールされているPLAMIOminiライブラリと同じバージョンの
-次のファイルをダウンロードします。
+インストールされているPLAMIOminiライブラリと同じバージョンの次のファイルを準備します。
 
 - PLAMIOmini_SDK.zip
 - PLAMIOmini_PROJECT.zip
+
+このファイルはライブラリーのインストールに使ったZIPファイルのdocsフォルダーに含まれています。もしくはGithubからダウンロードしてください。
 
 ダウンロードページ:
 
