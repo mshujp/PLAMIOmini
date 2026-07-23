@@ -16,10 +16,10 @@
 
      SCLK     : -1
      MOSI     : -1
+     DC       : -1
      CS       : -1
-     DC       : 14
-     RESET    : 15
-     LED      : 22
+     RESET    : -1
+     LED      : -1
 
 
 - [ ] SSD1306 (I2C)
@@ -35,22 +35,22 @@
 ## Input ===============================================
 
 - [x] GPIO Buttons
-     UP        : -1
-     DOWN      : -1
-     LEFT      : -1
-     RIGHT     : -1
-     A         : -1
-     B         : -1
-     START     : -1
-     VOL_UP    : -1
-     VOL_DOWN  : -1
-     MUTE      : -1
+     UP       : -1
+     DOWN     : -1
+     LEFT     : -1
+     RIGHT    : -1
+     A        : -1
+     B        : -1
+     START    : -1
+     VOL_UP   : -1
+     VOL_DOWN : -1
+     MUTE     : -1
 
 
 - [ ] SNES Controller
-     CLOCK     : -1
-     LATCH     : -1
-     DATA      : -1
+     CLOCK    : -1
+     LATCH    : -1
+     DATA     : -1
 
 
 ## Audio ===============================================

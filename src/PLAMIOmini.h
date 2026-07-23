@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // PLAMIO mini
 // AI-Friendly Game Framework
 //
@@ -17,6 +17,7 @@
 
 #pragma once
 #include <stdint.h>
+#include <variant> 
 #include <string>
 
 namespace PLAMIOmini
@@ -156,6 +157,54 @@ protected:
     virtual ~Input() {};
 };
 
+// Physical-input identifiers associated with PLAMIO logical buttons.
+// The meaning of each value is defined by the derived input class.
+// Examples:
+//   InputGpioButtons / InputSnes auxiliary buttons: GPIO number
+//   Future InputKeyboard: key code
+struct ButtonMapping
+{
+    int16_t UP       = -1;
+    int16_t DOWN     = -1;
+    int16_t LEFT     = -1;
+    int16_t RIGHT    = -1;
+    int16_t A        = -1;
+    int16_t B        = -1;
+    int16_t X        = -1;
+    int16_t Y        = -1;
+    int16_t L        = -1;
+    int16_t R        = -1;
+    int16_t START    = -1;
+    int16_t SELECT   = -1;
+    int16_t VOL_UP   = -1;
+    int16_t VOL_DOWN = -1;
+    int16_t HOME     = -1;
+    int16_t MUTE     = -1;
+};
+struct InputGpioButtonsConfig {
+    ButtonMapping buttonMapping{};
+};
+struct InputSnesConfig {
+    int8_t clkPin  = -1;
+    int8_t latPin  = -1;
+    int8_t dataPin = -1;
+    ButtonMapping buttonMapping{};
+};
+struct InputPs2Config
+{
+    int8_t clockPin = -1;
+    int8_t commandPin = -1;
+    int8_t attentionPin = -1;
+    int8_t dataPin = -1;
+    ButtonMapping buttonMapping{};
+};
+using InputConfig = std::variant<
+    InputGpioButtonsConfig,
+    InputSnesConfig, 
+    InputPs2Config
+>;
+
+
 // --- =================================================================
 // # Graphics
 //   - All graphics operations must be performed through this class.
@@ -289,6 +338,31 @@ protected:
     virtual ~Graphics() {};
 };
 
+struct GraphicsILI9341Config
+{ 
+    uint8_t spiHost = 0;
+    uint32_t spiWriteFreq = 60000000;
+    int8_t clkPin   = -1;
+    int8_t dataPin  = -1;
+    int8_t dcPin    = -1;
+    int8_t csPin    = -1;
+    int8_t resetPin   = -1;
+    int8_t backlightPin = -1;
+    uint8_t lcdRotate = 0;
+};
+struct GraphicsSSD1306Config {
+    uint8_t i2cPort = 0;
+    uint8_t i2cAddr = 0x3C;
+    int8_t sdaPin   = -1;
+    int8_t sclPin   = -1;
+    int8_t resetPin   = -1;
+    uint8_t oledRotate = 0;
+};
+using GraphicsConfig = std::variant<
+    GraphicsILI9341Config,
+    GraphicsSSD1306Config
+>;
+
 // --- =================================================================
 // # Tween
 // =====================================================================
@@ -407,6 +481,24 @@ protected:
     virtual ~Audio() {};
 };
 
+struct AudioPWMConfig
+{
+    int8_t pwmPin = -1;
+};
+struct AudioI2SConfig
+{
+    int8_t bclkPin = -1;
+    int8_t wsPin = -1;
+    int8_t dataPin = -1;
+};
+struct AudioStubConfig
+{
+};
+using AudioConfig = std::variant<
+    AudioPWMConfig,
+    AudioI2SConfig,
+    AudioStubConfig
+>;
 
 // --- =================================================================
 // # Storage
@@ -490,6 +582,31 @@ protected:
     virtual ~Storage() {};
 };
 
+struct StorageEEPROMConfig
+{
+    uint16_t magic = 0x504d;
+    uint8_t version = 1;
+    uint16_t eepromSize = 4096;
+};
+struct StorageSDConfig
+{
+    uint8_t spiHost = 0;
+    int8_t misoPin = -1;
+    int8_t sckPin = -1;
+    int8_t mosiPin = -1;
+    int8_t csPin = -1;
+    uint32_t baudRate = 12 * 1000 * 1000;
+};
+struct StorageStubConfig
+{
+};
+using StorageConfig = std::variant<
+    StorageEEPROMConfig,
+    StorageSDConfig,
+    StorageStubConfig 
+>;
+
+
 // --- =================================================================
 // # SaveData: Storage helper
 // [PROVIDED BY SYSTEM]
@@ -542,6 +659,7 @@ private:
     bool appendString(const char* text, uint16_t& offset);
     static bool writeLineHandler(std::string& line, void* arg);
 };
+
 
 // --- =================================================================
 // # GameMini
@@ -644,7 +762,7 @@ public:
 };
 
 
-void start(Graphics& graphics, Input& input, Storage& storage, Audio& audio,GameMini& game);
+void start(const GraphicsConfig& graphicsConfig, InputConfig& input, StorageConfig& storage, AudioConfig& audio, GameMini& game);
 
 
 } // namespace PLAMIO mini

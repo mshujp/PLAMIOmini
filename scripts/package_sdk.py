@@ -1,30 +1,18 @@
-Import("env")
-
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
+try:
+    Import("env")
+except NameError:
+    env = None
 
-project_dir = Path(env.subst("$PROJECT_DIR"))
+project_dir = (Path(env.subst("$PROJECT_DIR")) if env is not None
+               else Path(__file__).resolve().parent.parent)
 output_path_sdk = project_dir / "docs" / "PLAMIOmini_SDK.zip"
 output_path_project = project_dir / "docs" / "PLAMIOmini_PROJECT.zip"
 input_files_sdk = (
     (project_dir / "src" / "PLAMIOmini.h", "PLAMIOmini.h"),
     (project_dir / "docs" / "PLAMIOmini_AI_GUIDELINES.md", "PLAMIOmini_AI_GUIDELINES.md"),
-
-    (project_dir / "src" / "graphics" / "GraphicsILI9341.h", "graphics/GraphicsILI9341.h"),
-    (project_dir / "src" / "graphics" / "GraphicsSSD1306.h", "graphics/GraphicsSSD1306.h"),
-
-    (project_dir / "src" / "input" / "InputBase.h", "input/InputBase.h"),
-    (project_dir / "src" / "input" / "InputGpioButtons.h", "input/InputGpioButtons.h"),
-    (project_dir / "src" / "input" / "InputSnes.h", "input/InputSnes.h"),
-
-    (project_dir / "src" / "audio" / "AudioI2S.h", "audio/AudioI2S.h"),
-    (project_dir / "src" / "audio" / "AudioPWM.h", "audio/AudioPWM.h"),
-    (project_dir / "src" / "audio" / "AudioStub.h", "audio/AudioStub.h"),
-
-    (project_dir / "src" / "storage" / "StorageSD.h", "storage/StorageSD.h"),
-    (project_dir / "src" / "storage" / "StorageEEPROM.h", "storage/StorageEEPROM.h"),
-    (project_dir / "src" / "storage" / "StorageStub.h", "storage/StorageStub.h"),
 
     (project_dir / "examples" / "00B_Hardware_Setup" / "00B_Hardware_Setup.ino",
      "examples/00B_Hardware_Setup/00B_Hardware_Setup.ino"),

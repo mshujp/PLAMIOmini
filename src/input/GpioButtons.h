@@ -6,7 +6,7 @@
 namespace PLAMIOmini {
 namespace GpioButtons {
 
-inline void init(const InputBase::ButtonMapping& mapping)
+inline void init(const ButtonMapping& mapping)
 {
     const int16_t pins[] =
     {
@@ -22,7 +22,7 @@ inline void init(const InputBase::ButtonMapping& mapping)
     }
 }
 
-inline uint32_t read(const InputBase::ButtonMapping& mapping)
+inline uint32_t read(const ButtonMapping& mapping)
 {
     struct Entry
     {

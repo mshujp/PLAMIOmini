@@ -10,6 +10,7 @@ private:
     static constexpr uint16_t SAMPLE_RATE = 22050;
 
     int8_t bclkPin = -1;
+    int8_t wsPin = -1;
     int8_t dataPin = -1;
     void* device = nullptr;
     float phase = 0;
@@ -19,13 +20,7 @@ private:
     bool toneSamples(int from, int to, uint32_t total, uint32_t& written, float startGain, float endGain) override;
 
 public:
-    struct Config
-    {
-        int8_t bclkPin = -1;
-        int8_t dataPin = -1;
-    };
-
-    explicit AudioI2S(const Config& config) : bclkPin(config.bclkPin), dataPin(config.dataPin) {}
+    explicit AudioI2S(const AudioI2SConfig& config) : bclkPin(config.bclkPin), wsPin(config.wsPin), dataPin(config.dataPin) {}
     ~AudioI2S() override;
 
     uint8_t getVolumeSteps() const override { return 4; }

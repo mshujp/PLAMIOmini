@@ -1,10 +1,10 @@
-﻿# PLAMIOmini Game Generation Guidelines for AI
+# PLAMIOmini Game Generation Guidelines for AI
 
 ## Purpose
 
 This document defines the rules for generating `.ino` file for **PLAMIOmini**, the Arduino version of PLAMIO.
 
-PLAMIOmini is a small, statically configured game runtime for Arduino-compatible RP2040, RP2350, and ESP32 boards. A game derives from `PLAMIOmini::GameMini` and is combined with concrete graphics, input, audio, and storage drivers in an Arduino sketch.
+PLAMIOmini is a small, statically configured game runtime for Arduino-compatible RP2040, RP2350, and ESP32 boards. A game derives from `PLAMIOmini::GameMini` and supplies hardware configuration objects to the runtime.
 
 These rules are intended for AI-generated game code. Follow them strictly.
 
@@ -17,7 +17,7 @@ For every generation task, use the supplied files as the only authoritative spec
 Priority order:
 
 1. `PLAMIOmini.h`
-2. The supplied PLAMIOmini driver headers and board example
+2. The supplied board example
 3. This `PLAMIOmini_AI_GUIDELINES.md`
 4. The user's game design document
 
@@ -52,50 +52,50 @@ Rules
 
 The Board section identifies the target Arduino platform.
 
-The Display, Input, Audio and Storage sections determine which implementations and configuration objects must be generated.
+The Display, Input, Audio and Storage sections determine which configuration objects must be generated.
 
 ---
 
 ## Hardware Mapping
 
-The selected hardware determines which implementation classes must be instantiated.
+The selected hardware determines which public configuration type must be used.
 
 ### Display
 
-| Selected Hardware | Implementation |
+| Selected Hardware | Configuration |
 |-------------------|----------------|
-| ILI9341 | GraphicsILI9341 |
-| SSD1306 | GraphicsSSD1306 |
+| ILI9341 | `GraphicsILI9341Config` |
+| SSD1306 | `GraphicsSSD1306Config` |
 
 ### Input
 
-| Selected Hardware | Implementation |
+| Selected Hardware | Configuration |
 |-------------------|----------------|
-| SNES Controller | InputSnes |
-| GPIO Buttons | InputGpioButtons |
+| SNES Controller | `InputSnesConfig` |
+| GPIO Buttons | `InputGpioButtonsConfig` |
 
 ### Audio
 
-| Selected Hardware | Implementation |
+| Selected Hardware | Configuration |
 |-------------------|----------------|
-| PWM | AudioPWM |
-| I2S | AudioI2S |
-| None | AudioStub |
+| PWM | `AudioPWMConfig` |
+| I2S | `AudioI2SConfig` |
+| None | `AudioStubConfig` |
 
 ### Storage
 
-| Selected Hardware | Implementation |
+| Selected Hardware | Configuration |
 |-------------------|----------------|
-| SD Card | StorageSD |
-| EEPROM | StorageEEPROM |
-| None | StorageStub |
+| SD Card | `StorageSDConfig` |
+| EEPROM | `StorageEEPROMConfig` |
+| None | `StorageStubConfig` |
 
 The generated sketch shall:
 
-- Create the required configuration object for each selected implementation.
-- Create one instance of each selected implementation.
+- Create one configuration object for each selected hardware category.
+- Do not include or instantiate concrete hardware driver classes. The runtime owns them.
 - Create one GameMini-derived game instance.
-- Pass the created objects to `PLAMIOmini::start()` from `setup()`.
+- Pass the four configuration objects and game to `PLAMIOmini::start()` from `setup()`.
 - Leave Arduino `loop()` empty.
 
 Object declaration order:
@@ -106,9 +106,7 @@ Object declaration order:
 - Audio
 - Game
 
-Exceptions
-
-- `InputGpioButtons` uses `ButtonMapping` instead of `Config`.
+`InputGpioButtonsConfig` contains its `ButtonMapping` as `buttonMapping`.
 - `AudioStub` does not require a configuration object.
 - `StorageStub` does not require a configuration object.
 - `StorageEEPROM` may be constructed without a configuration object when default settings are sufficient.
@@ -150,7 +148,7 @@ The normal structure is:
 - `using namespace PLAMIOmini;`
 - Hardware configuration
 - Game class derived from `GameMini`
-- Global hardware objects
+- Global hardware configuration objects
 - Global game object
 - `setup()`
 - Empty `loop()`
@@ -159,21 +157,17 @@ Typical structure:
 
 ```cpp
 #include <PLAMIOmini.h>
-#include <graphics/GraphicsILI9341.h>
-#include <input/InputSnes.h>
-#include <audio/AudioI2S.h>
-#include <storage/StorageStub.h>
 
 using namespace PLAMIOmini;
 
 // Hardware configuration functions
 // Game class
-// Global driver objects
+// Global hardware configuration objects
 // Game instance
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()
@@ -189,7 +183,7 @@ void loop()
 
 Hardware configuration is board-specific.
 
-- Copy the includes, driver types, pin assignments, SPI host, frequencies, rotation, and buffer sizes from the supplied board example.
+- Copy the configuration types, pin assignments, SPI host, frequencies, rotation, and buffer sizes from the supplied board example.
 - Do not guess pins.
 - Do not silently change hardware settings while implementing a game.
 - Do not replace a storage, input, audio, or graphics driver unless the user requests it.
@@ -650,16 +644,13 @@ When the user asks for game logic only inside an existing template, output only 
 
 The generated game must be a complete Arduino `.ino` sketch.
 
-The hardware includes, configuration objects, pin assignments, and driver
-constructors must be generated from `PLAMIOmini_HARDWARE_CONFIG.md`.
+The hardware configuration objects and pin assignments must be generated from
+`PLAMIOmini_HARDWARE_CONFIG.md`.
 
 Do not copy hardware values from this sample.
 
 ```ino
 #include <PLAMIOmini.h>
-
-// Include only the hardware driver headers selected in
-// PLAMIOmini_HARDWARE_CONFIG.md.
 
 using namespace PLAMIOmini;
 
@@ -703,18 +694,16 @@ protected:
 };
 
 // ============================================================================
-// Hardware Objects
+// Hardware Configuration Objects
 // ============================================================================
 
-// Create exactly one display object.
-// Create exactly one input object.
-// Create exactly one storage object.
-// Create exactly one audio object.
+// Create exactly one display configuration object.
+// Create exactly one input configuration object.
+// Create exactly one storage configuration object.
+// Create exactly one audio configuration object.
 //
-// Their concrete classes, configuration objects, and constructor arguments
-// must come from PLAMIOmini_HARDWARE_CONFIG.md.
-//
-// Declare all hardware objects at global scope.
+// Their types and values must come from PLAMIOmini_HARDWARE_CONFIG.md.
+// Declare all hardware configuration objects at global scope.
 
 // ============================================================================
 // Game Object
@@ -728,7 +717,7 @@ SampleGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()
@@ -751,10 +740,10 @@ When generating a complete Arduino sketch:
 - Do not modify the generated `setup()` function except for user-requested changes.
 - Do not modify the generated `loop()` function.
 - Do not move hardware initialization into the game class.
-- Do not construct hardware objects inside `setup()`.
+- Do not construct hardware configuration objects inside `setup()`.
 - Do not dynamically allocate framework objects.
-- Declare all framework objects at global scope.
-- Pass the global hardware and game objects to `PLAMIOmini::start()` from `setup()`.
+- Declare all hardware configuration objects and the game object at global scope.
+- Pass the global hardware configuration objects and game object to `PLAMIOmini::start()` from `setup()`.
 
 ---
 
@@ -789,8 +778,8 @@ Before presenting generated code, verify:
 16. No dynamic containers or unnecessary heap allocation were introduced.
 17. All fonts, colors, and graphics calls exist in the supplied header.
 18. The selected hardware configuration matches the supplied working example.
-19. The sketch includes global driver and game instances.
-20. `setup()` calls `PLAMIOmini::start(graphics, input, storage, audio, game)` and `loop()` is empty.
+19. The sketch includes global hardware configuration objects and one game instance.
+20. `setup()` calls `PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game)` and `loop()` is empty.
 
 ---
 
@@ -804,7 +793,7 @@ Verify at minimum:
 - Every `#include` path
 - Every class name
 - Every configuration type and field
-- Every constructor argument
+- Every configuration value
 - Every overridden function signature
 - Every `Graphics::Font` value
 - Every `Graphics::Color` value

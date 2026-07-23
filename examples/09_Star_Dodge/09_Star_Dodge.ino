@@ -25,11 +25,6 @@ Before compiling:
 */
 
 #include <PLAMIOmini.h>
-#include <graphics/GraphicsILI9341.h>
-#include <input/InputBase.h>
-#include <input/InputGpioButtons.h>
-#include <audio/AudioStub.h>
-#include <storage/StorageStub.h>
 
 using namespace PLAMIOmini;
 
@@ -38,7 +33,7 @@ using namespace PLAMIOmini;
 // Hardware configuration
 // =============================================================================
 
-GraphicsILI9341::Config graphicsConfig = {
+GraphicsILI9341Config graphicsConfig = {
     .spiHost         = 0,
     .spiWriteFreq    = 60000000,
     .clkPin          = -1,
@@ -50,7 +45,7 @@ GraphicsILI9341::Config graphicsConfig = {
     .lcdRotate       = 0,
 };
 
-InputBase::ButtonMapping buttonMapping = {
+ButtonMapping buttonMapping = {
     .UP       = -1,
     .DOWN     = -1,
     .LEFT     = -1,
@@ -627,10 +622,9 @@ protected:
 // PLAMIOmini objects
 // =============================================================================
 
-GraphicsILI9341 graphics(graphicsConfig);
-InputGpioButtons input(buttonMapping);
-StorageStub storage;
-AudioStub audio;
+InputConfig inputConfig = InputGpioButtonsConfig{.buttonMapping = buttonMapping};
+StorageConfig storageConfig = StorageStubConfig{};
+AudioConfig audioConfig = AudioStubConfig{};
 StarDodgeGame game;
 
 
@@ -640,7 +634,7 @@ StarDodgeGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()

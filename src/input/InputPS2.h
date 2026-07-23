@@ -22,16 +22,7 @@ private:
     uint32_t readButtons() override;
 
 public:
-    struct Config
-    {
-        int8_t clockPin = -1;
-        int8_t commandPin = -1;
-        int8_t attentionPin = -1;
-        int8_t dataPin = -1;
-        ButtonMapping buttonMapping{};
-    };
-
-    explicit InputPS2(const Config& config);
+    explicit InputPS2(const InputPs2Config& config);
 
     bool begin() override;
     void end() override;

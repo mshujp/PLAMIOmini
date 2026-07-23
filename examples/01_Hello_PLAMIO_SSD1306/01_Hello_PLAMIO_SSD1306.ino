@@ -13,11 +13,6 @@ Before compiling:
 */
 
 #include <PLAMIOmini.h>
-#include <graphics/GraphicsSSD1306.h>
-#include <input/InputBase.h>
-#include <input/InputGpioButtons.h>
-#include <audio/AudioStub.h>
-#include <storage/StorageStub.h>
 
 using namespace PLAMIOmini;
 
@@ -26,7 +21,7 @@ using namespace PLAMIOmini;
 // Hardware configuration
 // =============================================================================
 
-GraphicsSSD1306::Config graphicsConfig = {
+GraphicsSSD1306Config graphicsConfig = {
     .i2cPort   = 0,
     .i2cAddr   = 0x3C,
     .sdaPin    = -1,
@@ -35,7 +30,7 @@ GraphicsSSD1306::Config graphicsConfig = {
     .oledRotate = 0,
 };
 
-InputBase::ButtonMapping buttonMapping = {
+ButtonMapping buttonMapping = {
     .UP       = -1,
     .DOWN     = -1,
     .LEFT     = -1,
@@ -140,10 +135,9 @@ protected:
 // PLAMIOmini objects
 // =============================================================================
 
-GraphicsSSD1306 graphics(graphicsConfig);
-InputGpioButtons input(buttonMapping);
-StorageStub storage;
-AudioStub audio;
+InputConfig inputConfig = InputGpioButtonsConfig{.buttonMapping = buttonMapping};
+StorageConfig storageConfig = StorageStubConfig{};
+AudioConfig audioConfig = AudioStubConfig{};
 HelloPLAMIOGame game;
 
 
@@ -153,7 +147,7 @@ HelloPLAMIOGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()

@@ -9,33 +9,33 @@ namespace {
 struct MappingEntry
 {
     Input::Button button;
-    int16_t InputBase::ButtonMapping::* pin;
+    int16_t ButtonMapping::* pin;
 };
 
 constexpr MappingEntry MAPPINGS[] =
 {
-    {Input::UP, &InputBase::ButtonMapping::UP},
-    {Input::DOWN, &InputBase::ButtonMapping::DOWN},
-    {Input::LEFT, &InputBase::ButtonMapping::LEFT},
-    {Input::RIGHT, &InputBase::ButtonMapping::RIGHT},
-    {Input::A, &InputBase::ButtonMapping::A},
-    {Input::B, &InputBase::ButtonMapping::B},
-    {Input::X, &InputBase::ButtonMapping::X},
-    {Input::Y, &InputBase::ButtonMapping::Y},
-    {Input::L, &InputBase::ButtonMapping::L},
-    {Input::R, &InputBase::ButtonMapping::R},
-    {Input::START, &InputBase::ButtonMapping::START},
-    {Input::SELECT, &InputBase::ButtonMapping::SELECT},
-    {Input::VOL_UP, &InputBase::ButtonMapping::VOL_UP},
-    {Input::VOL_DOWN, &InputBase::ButtonMapping::VOL_DOWN},
-    {Input::HOME, &InputBase::ButtonMapping::HOME},
-    {Input::MUTE, &InputBase::ButtonMapping::MUTE}
+    {Input::UP, &ButtonMapping::UP},
+    {Input::DOWN, &ButtonMapping::DOWN},
+    {Input::LEFT, &ButtonMapping::LEFT},
+    {Input::RIGHT, &ButtonMapping::RIGHT},
+    {Input::A, &ButtonMapping::A},
+    {Input::B, &ButtonMapping::B},
+    {Input::X, &ButtonMapping::X},
+    {Input::Y, &ButtonMapping::Y},
+    {Input::L, &ButtonMapping::L},
+    {Input::R, &ButtonMapping::R},
+    {Input::START, &ButtonMapping::START},
+    {Input::SELECT, &ButtonMapping::SELECT},
+    {Input::VOL_UP, &ButtonMapping::VOL_UP},
+    {Input::VOL_DOWN, &ButtonMapping::VOL_DOWN},
+    {Input::HOME, &ButtonMapping::HOME},
+    {Input::MUTE, &ButtonMapping::MUTE}
 };
 
 } // namespace
 
-InputGpioButtons::InputGpioButtons(const ButtonMapping& _buttonMapping)
-    : buttonMapping(_buttonMapping)
+InputGpioButtons::InputGpioButtons(const InputGpioButtonsConfig& config)
+    : buttonMapping(config.buttonMapping)
 {
 }
 

@@ -13,7 +13,7 @@ private:
     uint32_t readButtons() override;
 
 public:
-    explicit InputGpioButtons(const ButtonMapping& buttonMapping);
+    explicit InputGpioButtons(const InputGpioButtonsConfig& config);
 
     bool begin() override;
     void end() override;

@@ -1,62 +1,19 @@
 #pragma once
 
 #include "GraphicsBase.h"
-#include <LovyanGFX.hpp>
 
 namespace PLAMIOmini {
 
-class LGFX_SSD1306 : public lgfx::LGFX_Device {
+class GraphicsSSD1306 : public GraphicsBase
+{
 private:
-    lgfx::Panel_SSD1306 panel;
-    lgfx::Bus_I2C bus;
-
-public:
-    LGFX_SSD1306(int8_t sdaPin, int8_t sclPin, uint8_t i2cPort, uint8_t i2cAddr = 0x3C, int8_t rstPin = -1) {
-        {
-            auto cfg = bus.config();
-            cfg.i2c_port = static_cast<decltype(cfg.i2c_port)>(i2cPort);
-            cfg.freq_write = 400000;
-            cfg.freq_read = 400000;
-            cfg.pin_sda = sdaPin;
-            cfg.pin_scl = sclPin;
-            cfg.i2c_addr = i2cAddr;
-            bus.config(cfg);
-            panel.setBus(&bus);
-        }
-        {
-            auto cfg = panel.config();
-            cfg.pin_rst = rstPin;
-            cfg.panel_width = 128;
-            cfg.panel_height = 64;
-            cfg.offset_x = 0;
-            cfg.offset_y = 0;
-            cfg.invert = false;
-            panel.config(cfg);
-        }
-
-        setPanel(&panel);
-    }
-};
-
-class GraphicsSSD1306 : public GraphicsBase {
-private:
-    LGFX_SSD1306 lcd;
-    LGFX_Sprite canvas;
-    uint8_t rotate;
+    GraphicsSSD1306Config config;
 
     uint16_t mono(Graphics::Color color) const;
     void setFont(const char* str, Font font);
 
 public:
-    struct Config {
-        uint8_t i2cPort = 0;
-        uint8_t i2cAddr = 0x3C;
-        int8_t sdaPin   = -1;
-        int8_t sclPin   = -1;
-        int8_t resetPin   = -1;
-        uint8_t oledRotate = 0;
-    };
-    explicit GraphicsSSD1306(const Config& config);
+    explicit GraphicsSSD1306(const GraphicsSSD1306Config& config);
 
     bool begin() override;
     void end() override;
@@ -81,7 +38,7 @@ public:
     void drawSprite(const uint16_t* bitmap, int16_t x, int16_t y, uint16_t w, uint16_t h, uint8_t spriteScale,  Color transparentColor, bool flipX = false, bool flipY = false) override;
 
     bool readScreenLine(uint16_t y, uint16_t* outPixels, uint16_t pixelCount) override;
-    void push() override;
+    bool push() override;
 };
 
 } // namespace PLAMIOmini

@@ -4,6 +4,18 @@
 #include "../storage/StorageBase.h"
 #include "../util/Platform.h"
 
+#include "../graphics/GraphicsILI9341.h"
+#include "../graphics/GraphicsSSD1306.h"
+#include "../input/InputGpioButtons.h"
+#include "../input/InputPS2.h"
+#include "../input/InputSnes.h"
+#include "../audio/AudioI2S.h"
+#include "../audio/AudioPWM.h"
+#include "../audio/AudioStub.h"
+#include "../storage/StorageEEPROM.h"
+#include "../storage/StorageSD.h"
+#include "../storage/StorageStub.h"
+
 #include <Arduino.h>
 #include <atomic>
 
@@ -13,6 +25,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #endif
+
 
 namespace PLAMIOmini {
 
@@ -169,7 +182,11 @@ void SystemMini::runFrame()
     if (drew)
     {
         drawVolumeOSD();
-        graphics.push();
+        while(graphics.push())
+        {
+            game.draw(graphics, true);
+            drawVolumeOSD();
+        }
         requestFullRedraw = false;
     }
 }
@@ -260,13 +277,98 @@ uint8_t SystemMini::loadVolume()
     return static_cast<uint8_t>(data.getUInt32("volume", 1));
 }
 
-void start(Graphics& graphics, Input& input, Storage& storage, Audio& audio, GameMini& game)
+void start(const GraphicsConfig& graphicsConfig, InputConfig& inputConfig,
+           StorageConfig& storageConfig, AudioConfig& audioConfig, GameMini& game)
 {
+    GraphicsBase* graphics = nullptr;
+    InputBase* inputDriver = nullptr;
+    StorageBase* storageDriver = nullptr;
+    AudioBase* audioDriver = nullptr;
+
+    if (std::holds_alternative<GraphicsILI9341Config>(graphicsConfig))
+    {
+        static GraphicsILI9341 instance(
+            std::get<GraphicsILI9341Config>(graphicsConfig)
+        );
+        graphics = &instance;
+    }
+    else if (std::holds_alternative<GraphicsSSD1306Config>(graphicsConfig))
+    {
+        static GraphicsSSD1306 instance(
+            std::get<GraphicsSSD1306Config>(graphicsConfig)
+        );
+        graphics = &instance;
+    }
+
+    if (std::holds_alternative<InputGpioButtonsConfig>(inputConfig))
+    {
+        static InputGpioButtons instance(
+            std::get<InputGpioButtonsConfig>(inputConfig)
+        );
+        inputDriver = &instance;
+    }
+    else if (std::holds_alternative<InputSnesConfig>(inputConfig))
+    {
+        static InputSnes instance(
+            std::get<InputSnesConfig>(inputConfig)
+        );
+        inputDriver = &instance;
+    }
+    else if (std::holds_alternative<InputPs2Config>(inputConfig))
+    {
+        static InputPS2 instance(
+            std::get<InputPs2Config>(inputConfig)
+        );
+        inputDriver = &instance;
+    }
+
+    if (std::holds_alternative<StorageEEPROMConfig>(storageConfig))
+    {
+        static StorageEEPROM instance(
+            std::get<StorageEEPROMConfig>(storageConfig)
+        );
+        storageDriver = &instance;
+    }
+    else if (std::holds_alternative<StorageSDConfig>(storageConfig))
+    {
+        static StorageSD instance(
+            std::get<StorageSDConfig>(storageConfig)
+        );
+        storageDriver = &instance;
+    }
+    else if (std::holds_alternative<StorageStubConfig>(storageConfig))
+    {
+        static StorageStub instance;
+        storageDriver = &instance;
+    }
+
+    if (std::holds_alternative<AudioPWMConfig>(audioConfig))
+    {
+        static AudioPWM instance(
+            std::get<AudioPWMConfig>(audioConfig)
+        );
+        audioDriver = &instance;
+    }
+    else if (std::holds_alternative<AudioI2SConfig>(audioConfig))
+    {
+        static AudioI2S instance(
+            std::get<AudioI2SConfig>(audioConfig)
+        );
+        audioDriver = &instance;
+    }
+    else if (std::holds_alternative<AudioStubConfig>(audioConfig))
+    {
+        static AudioStub instance;
+        audioDriver = &instance;
+    }
+
+    if (!graphics || !inputDriver || !storageDriver || !audioDriver) return;
+
     static SystemMini systemMini(
-        static_cast<GraphicsBase&>(graphics),
-        static_cast<InputBase&>(input),
-        static_cast<StorageBase&>(storage),
-        static_cast<AudioBase&>(audio),
+        *graphics,
+        *inputDriver,
+        *storageDriver,
+        *audioDriver,
         game
     );
 

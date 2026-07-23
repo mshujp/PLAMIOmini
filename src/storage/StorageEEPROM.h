@@ -32,15 +32,8 @@ private:
 class StorageEEPROM : public StorageBase
 {
 public:
-    struct Config
-    {
-        uint16_t magic = 0x504d;
-        uint8_t version = 1;
-        uint16_t eepromSize = 4096;
-    };
-
     StorageEEPROM() = default;
-    explicit StorageEEPROM(const Config& config) : config(config) {}
+    explicit StorageEEPROM(const StorageEEPROMConfig& config) : config(config) {}
 
     bool begin() override;
     void end() override;
@@ -75,7 +68,7 @@ private:
         Slot slots[SLOT_COUNT];
     };
 
-    Config config;
+    StorageEEPROMConfig config;
     Image image = {};
     bool ready = false;
     StorageEEPROMFile fileSlot;

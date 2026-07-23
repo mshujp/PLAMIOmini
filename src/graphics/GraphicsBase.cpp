@@ -18,9 +18,6 @@ uint16_t GraphicsBase::getTextHeight(const char* text, Font font)
         case Font::SIZE_32B: return 32;
         case Font::SIZE_42:  return 42;
         case Font::SIZE_42B: return 42;
-        case Font::SIZE_16J: return 16;
-        case Font::SIZE_20J: return 20;
-        case Font::SIZE_32J: return 32;
         default: return 0;
      }
 }

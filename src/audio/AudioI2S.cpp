@@ -45,7 +45,7 @@ bool AudioI2S::begin()
     I2SClass* i2s = new I2SClass();
     if (i2s == nullptr) return false;
 
-    i2s->setPins(bclkPin, bclkPin + 1, dataPin, -1, -1);
+    i2s->setPins(bclkPin, wsPin, dataPin, -1, -1);
     if (!i2s->begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO))
     {
         delete i2s;
@@ -67,7 +67,7 @@ bool AudioI2S::begin()
 
     i2s_pin_config_t pinConfig = {};
     pinConfig.bck_io_num = bclkPin;
-    pinConfig.ws_io_num = bclkPin + 1;
+    pinConfig.ws_io_num = wsPin;
     pinConfig.data_out_num = dataPin;
     pinConfig.data_in_num = I2S_PIN_NO_CHANGE;
     if (i2s_set_pin(I2S_NUM_0, &pinConfig) != ESP_OK)

@@ -25,7 +25,7 @@ constexpr Input::Button SNES_BUTTON_MAP[] = {
 constexpr size_t SNES_BUTTON_COUNT = sizeof(SNES_BUTTON_MAP) / sizeof(SNES_BUTTON_MAP[0]);
 }
 
-InputSnes::InputSnes(const Config& config)
+InputSnes::InputSnes(const InputSnesConfig& config)
     : clkPin(config.clkPin),
       latPin(config.latPin),
       dataPin(config.dataPin),

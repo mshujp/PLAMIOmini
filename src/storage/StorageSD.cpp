@@ -77,7 +77,7 @@ bool StorageSDFile::closeWrite()
     return true;
 }
 
-StorageSD::StorageSD(const Config& value)
+StorageSD::StorageSD(const StorageSDConfig& value)
     : config(value)
 {
 }

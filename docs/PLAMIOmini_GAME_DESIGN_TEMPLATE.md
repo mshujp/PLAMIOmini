@@ -1,4 +1,4 @@
-﻿PLAMIO Game design template
+PLAMIO Game design template
 
 --- ---------------------------------------------------------------------
  # Design & Visual Theme

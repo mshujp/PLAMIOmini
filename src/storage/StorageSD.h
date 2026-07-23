@@ -29,17 +29,7 @@ private:
 class StorageSD : public StorageBase
 {
 public:
-    struct Config
-    {
-        uint8_t spiHost = 0;
-        int8_t misoPin = -1;
-        int8_t sckPin = -1;
-        int8_t mosiPin = -1;
-        int8_t csPin = -1;
-        uint32_t baudRate = 12 * 1000 * 1000;
-    };
-
-    explicit StorageSD(const Config& config);
+    explicit StorageSD(const StorageSDConfig& config);
     ~StorageSD() override;
 
     bool begin() override;
@@ -58,7 +48,7 @@ private:
     static constexpr size_t PATH_MAX_LENGTH = 128;
     static constexpr const char* ROOT_DIR = "/PLAMIO_Games";
 
-    Config config;
+    StorageSDConfig config;
     bool sdAvailable = false;
     SPIClass* spi = nullptr;
     bool ownsSpi = false;

@@ -36,7 +36,7 @@ enum PS2Button : uint16_t
 };
 }
 
-InputPS2::InputPS2(const Config& config)
+InputPS2::InputPS2(const InputPs2Config& config)
     : clockPin(config.clockPin),
       commandPin(config.commandPin),
       attentionPin(config.attentionPin),

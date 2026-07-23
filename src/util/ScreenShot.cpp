@@ -2,6 +2,7 @@
 #include "../graphics/GraphicsBase.h"
 #include "../graphics/GraphicsILI9341.h"
 #include "../graphics/GraphicsSSD1306.h"
+#include "../storage/StorageSD.h"
 
 #include <cstdio>
 #include <memory>
@@ -80,7 +81,7 @@ bool writeBitmap(StorageBaseFile& file, void* arg)
 } // namespace
 
 bool saveScreenShot(GraphicsBase& graphics, uint16_t width, uint16_t height,
-                    StorageBase& storage, const char* fileName)
+                    StorageSD& storage, const char* fileName)
 {
     if (!storage.isAvailable()) return false;
 
@@ -106,13 +107,13 @@ bool saveScreenShot(GraphicsBase& graphics, uint16_t width, uint16_t height,
         SCREENSHOT_GAME_ID, fileName, &writeBitmap, &context);
 }
 
-bool ScreenShot::save(GraphicsILI9341& graphics, StorageBase& storage, const char* fileName)
+bool ScreenShot::save(GraphicsILI9341& graphics, StorageSD& storage, const char* fileName)
 {
     return saveScreenShot(graphics, Display::ILI9341_SCREEN_W,
                           Display::ILI9341_SCREEN_H, storage, fileName);
 }
 
-bool ScreenShot::save(GraphicsSSD1306& graphics, StorageBase& storage, const char* fileName)
+bool ScreenShot::save(GraphicsSSD1306& graphics, StorageSD& storage, const char* fileName)
 {
     return saveScreenShot(graphics, Display::SSD1306_SCREEN_W,
                           Display::SSD1306_SCREEN_H, storage, fileName);

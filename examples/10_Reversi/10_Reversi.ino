@@ -18,15 +18,10 @@ Before compiling:
 */
 
 #include <PLAMIOmini.h>
-#include <graphics/GraphicsILI9341.h>
-#include <input/InputBase.h>
-#include <input/InputGpioButtons.h>
-#include <audio/AudioPWM.h>
-#include <storage/StorageStub.h>
 
 using namespace PLAMIOmini;
 
-GraphicsILI9341::Config graphicsConfig = {
+GraphicsILI9341Config graphicsConfig = {
     .spiHost         = 0,
     .spiWriteFreq    = 60000000,
     .clkPin          = -1,
@@ -38,7 +33,7 @@ GraphicsILI9341::Config graphicsConfig = {
     .lcdRotate       = 0,
 };
 
-InputBase::ButtonMapping buttonMapping = {
+ButtonMapping buttonMapping = {
     .UP       = -1,
     .DOWN     = -1,
     .LEFT     = -1,
@@ -51,7 +46,7 @@ InputBase::ButtonMapping buttonMapping = {
     .MUTE     = -1,
 };
 
-AudioPWM::Config audioConfig = {
+AudioConfig audioConfig = AudioPWMConfig{
     .pwmPin = -1,
 };
 
@@ -628,15 +623,13 @@ protected:
     }
 };
 
-GraphicsILI9341 graphics(graphicsConfig);
-InputGpioButtons input(buttonMapping);
-StorageStub storage;
-AudioPWM audio(audioConfig);
+InputConfig inputConfig = InputGpioButtonsConfig{.buttonMapping = buttonMapping};
+StorageConfig storageConfig = StorageStubConfig{};
 ReversiGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()

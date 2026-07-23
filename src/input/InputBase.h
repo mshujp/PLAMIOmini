@@ -7,32 +7,6 @@ namespace PLAMIOmini {
 
 class InputBase : public Input
 {
-public:
-    // Physical-input identifiers associated with PLAMIO logical buttons.
-    // The meaning of each value is defined by the derived input class.
-    // Examples:
-    //   InputGpioButtons / InputSnes auxiliary buttons: GPIO number
-    //   Future InputKeyboard: key code
-    struct ButtonMapping
-    {
-        int16_t UP       = -1;
-        int16_t DOWN     = -1;
-        int16_t LEFT     = -1;
-        int16_t RIGHT    = -1;
-        int16_t A        = -1;
-        int16_t B        = -1;
-        int16_t X        = -1;
-        int16_t Y        = -1;
-        int16_t L        = -1;
-        int16_t R        = -1;
-        int16_t START    = -1;
-        int16_t SELECT   = -1;
-        int16_t VOL_UP   = -1;
-        int16_t VOL_DOWN = -1;
-        int16_t HOME     = -1;
-        int16_t MUTE     = -1;
-    };
-
 private:
     uint32_t current = 0;
     uint32_t previous = 0;

@@ -16,7 +16,7 @@ public:
     virtual bool begin() = 0; 
     virtual void end() = 0; 
 
-    virtual void push() = 0; 
+    virtual bool push() = 0; 
 
     virtual bool readScreenLine(uint16_t y, uint16_t* outPixels, uint16_t pixelCount) { return false;}
 

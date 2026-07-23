@@ -7,10 +7,10 @@
 Copy the configuration for the hardware you want to use.
 Change each value to match your hardware.
 
-Only one class from each section should be used.
+Only one configuration from each section should be used.
 
 This file is a configuration reference and an interface compile check.
-Select one instance from each category near the end of the file.
+Select one configuration from each category near the end of the file.
 */
 
 #include <PLAMIOmini.h>
@@ -26,9 +26,7 @@ using namespace PLAMIOmini;
 // GraphicsILI9341
 // -----------------------------------------------------------------------------
 
-#include <graphics/GraphicsILI9341.h>
-
-GraphicsILI9341::Config ili9341Config = {
+GraphicsILI9341Config ili9341Config = {
     .spiHost = 0,  // 0 or 1. Select the SPI host that matches the pins.
                    // When using an SD card, SPI0 for SD and SPI1 for the display is recommended.
     .spiWriteFreq    = 62500000,
@@ -41,15 +39,11 @@ GraphicsILI9341::Config ili9341Config = {
     .lcdRotate  = 0,  // 0: Normal  3: Rotated 180 degrees
 };
 
-GraphicsILI9341 ili9341Graphics(ili9341Config);
-
 // -----------------------------------------------------------------------------
 // GraphicsSSD1306
 // -----------------------------------------------------------------------------
 
-#include <graphics/GraphicsSSD1306.h>
-
-GraphicsSSD1306::Config ssd1306Config = {
+GraphicsSSD1306Config ssd1306Config = {
     .i2cPort    = 0,            // 0 or 1
     .i2cAddr    = 0x3C,         // 0x3C or 0x3D, depending on the module
     .sdaPin     = -1,
@@ -57,9 +51,6 @@ GraphicsSSD1306::Config ssd1306Config = {
     .resetPin   = -1,
     .oledRotate = 0,  // 0: Normal  2: Rotated 180 degrees
 };
-
-GraphicsSSD1306 ssd1306Graphics(ssd1306Config);
-
 
 /*
 ===============================================================================
@@ -71,10 +62,7 @@ GraphicsSSD1306 ssd1306Graphics(ssd1306Config);
 // InputGpioButtons
 // -----------------------------------------------------------------------------
 
-#include <input/InputBase.h>
-#include <input/InputGpioButtons.h>
-
-InputBase::ButtonMapping buttonMapping = {
+ButtonMapping buttonMapping = {
     .UP       = -1,
     .DOWN     = -1,
     .LEFT     = -1,
@@ -93,17 +81,16 @@ InputBase::ButtonMapping buttonMapping = {
     .MUTE     = -1,
 };
 
-InputGpioButtons gpioButtonInput(buttonMapping);
+InputGpioButtonsConfig gpioButtonsConfig = {
+    .buttonMapping = buttonMapping,
+};
 
 
 // -----------------------------------------------------------------------------
 // InputSnes
 // -----------------------------------------------------------------------------
 
-#include <input/InputBase.h>
-#include <input/InputSnes.h>
-
-InputSnes::Config snesConfig = {
+InputSnesConfig snesConfig = {
     .clkPin  = -1,
     .latPin  = -1,
     .dataPin = -1,
@@ -128,9 +115,6 @@ InputSnes::Config snesConfig = {
     },
 };
 
-InputSnes snesInput(snesConfig);
-
-
 /*
 ===============================================================================
  Audio
@@ -141,29 +125,19 @@ InputSnes snesInput(snesConfig);
 // AudioI2S
 // -----------------------------------------------------------------------------
 
-#include <audio/AudioI2S.h>
-
-AudioI2S::Config i2sConfig = {
+AudioI2SConfig i2sConfig = {
     .bclkPin = -1,
-    // LRCLK uses BCLK + 1 pin
+    .wsPin = -1, // LRCLK/WS; on Pico(rp2040/rp2350), wsPin must equal bclkPin + 1.
     .dataPin = -1,
 };
-
-AudioI2S i2sAudio(i2sConfig);
-
 
 // -----------------------------------------------------------------------------
 // AudioPWM
 // -----------------------------------------------------------------------------
 
-#include <audio/AudioPWM.h>
-
-AudioPWM::Config pwmConfig = {
+AudioPWMConfig pwmConfig = {
     .pwmPin = -1,
 };
-
-AudioPWM pwmAudio(pwmConfig);
-
 
 // -----------------------------------------------------------------------------
 // AudioStub
@@ -171,9 +145,7 @@ AudioPWM pwmAudio(pwmConfig);
 // Use when audio hardware is not supported or not used.
 // -----------------------------------------------------------------------------
 
-#include <audio/AudioStub.h>
-
-AudioStub stubAudio;
+AudioStubConfig stubAudioConfig;
 
 
 /*
@@ -186,9 +158,7 @@ AudioStub stubAudio;
 // StorageSD
 // -----------------------------------------------------------------------------
 
-#include <storage/StorageSD.h>
-
-StorageSD::Config sdConfig = {
+StorageSDConfig sdConfig = {
     .spiHost = 0, // 0 or 1. Select the SPI host that matches the pins.
                   // When using a display, SPI0 for SD and SPI1 for the display is recommended.
     .misoPin  = -1,
@@ -198,23 +168,15 @@ StorageSD::Config sdConfig = {
     .baudRate = 12000000,
 };
 
-StorageSD sdStorage(sdConfig);
-
-
 // -----------------------------------------------------------------------------
 // StorageEEPROM  Default values are recommended
 // -----------------------------------------------------------------------------
 
-#include <storage/StorageEEPROM.h>
-
-StorageEEPROM::Config eepromConfig = {
+StorageEEPROMConfig eepromConfig = {
     .magic      = 0x504d,
     .version    = 1,
     .eepromSize = 4096,
 };
-
-StorageEEPROM eerpromStorage(eepromConfig);
-
 
 // -----------------------------------------------------------------------------
 // StorageStub
@@ -222,9 +184,7 @@ StorageEEPROM eerpromStorage(eepromConfig);
 // Use when storage hardware is not supported or not used.
 // -----------------------------------------------------------------------------
 
-#include <storage/StorageStub.h>
-
-StorageStub stubStorage;
+StorageStubConfig stubStorageConfig;
 
 
 
@@ -251,16 +211,16 @@ public:
     void onTerminate(Storage& storage) override {}
 };
 
-// Select one concrete instance from each category.
-Graphics& graphics = ili9341Graphics;  // or: ssd1306Graphics
-Input& input = gpioButtonInput;        // or: snesInput
-Audio& audio = stubAudio;              // or: i2sAudio, pwmAudio
-Storage& storage = stubStorage;        // or: sdStorage, eerpromStorage
+// Select one configuration from each category.
+GraphicsConfig graphicsConfig = ili9341Config;  // or: ssd1306Config
+InputConfig inputConfig = gpioButtonsConfig;    // or: snesConfig
+AudioConfig audioConfig = stubAudioConfig;      // or: i2sConfig, pwmConfig
+StorageConfig storageConfig = stubStorageConfig; // or: sdConfig, eepromConfig
 MyGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphics, input, storage, audio, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
 }
 
 void loop()

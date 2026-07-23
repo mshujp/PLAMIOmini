@@ -226,3 +226,14 @@ Only the configurations listed above have been verified.
 # License
 
 MIT License
+
+## Third party License
+
+This project includes a minimized subset of LovyanGFX 1.2.26.
+
+Only the components required by PLAMIOmini are included.
+Unused panels, buses, touch drivers, platform implementations,
+and font data have been removed.
+
+The original copyright notices and applicable license files
+for all retained components are preserved.

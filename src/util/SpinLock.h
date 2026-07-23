@@ -1,6 +1,10 @@
 #pragma once
 
+#if defined(ARDUINO_ARCH_RP2040)
+#include <pico/mutex.h>
+#else
 #include <atomic>
+#endif
 
 namespace PLAMIOmini
 {
@@ -10,24 +14,43 @@ namespace PLAMIOmini
 class SpinLock
 {
 public:
+#if defined(ARDUINO_ARCH_RP2040)
+    SpinLock()
+    {
+        mutex_init(&mutex);
+    }
+#else
     SpinLock() = default;
+#endif
     SpinLock(const SpinLock&) = delete;
     SpinLock& operator=(const SpinLock&) = delete;
 
     void lock()
     {
+#if defined(ARDUINO_ARCH_RP2040)
+        mutex_enter_blocking(&mutex);
+#else
         while (flag.test_and_set(std::memory_order_acquire))
         {
         }
+#endif
     }
 
     void unlock()
     {
+#if defined(ARDUINO_ARCH_RP2040)
+        mutex_exit(&mutex);
+#else
         flag.clear(std::memory_order_release);
+#endif
     }
 
 private:
+#if defined(ARDUINO_ARCH_RP2040)
+    mutex_t mutex;
+#else
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
+#endif
 };
 
 class SpinLockGuard

@@ -15,14 +15,7 @@ private:
     uint32_t readButtons() override;
 
 public:
-    struct Config {
-        int8_t clkPin  = -1;
-        int8_t latPin  = -1;
-        int8_t dataPin = -1;
-        ButtonMapping buttonMapping{};
-    };
-
-    explicit InputSnes(const Config& config);
+    explicit InputSnes(const InputSnesConfig& config);
 
     bool begin() override;
     void end() override;

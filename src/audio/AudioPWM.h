@@ -16,12 +16,7 @@ private:
     bool toneSamples(int from, int to, uint32_t total, uint32_t& written, float startGain, float endGain) override;
 
 public:
-    struct Config
-    {
-        int8_t pwmPin = -1;
-    };
-
-    explicit AudioPWM(const Config& config)
+    explicit AudioPWM(const AudioPWMConfig& config)
         : pin(config.pwmPin) {}
 
     uint8_t getVolumeSteps() const override { return 2; }
