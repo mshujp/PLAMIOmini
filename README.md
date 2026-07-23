@@ -169,8 +169,8 @@ Based on current development experience:
 
 - **Main board:** RP2040  
   Examples: Waveshare RP2040 Zero
-- **Input:** About 7 tactile switches  
-  D-pad, A, B, and Start
+- **Input:** About 6 tactile switches  
+  D-pad, A, and B 
 - **Display:** SSD1306
 - **Audio:** PWM  
   Add a potentiometer for volume adjustment if needed.
