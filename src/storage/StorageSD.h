@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "StorageBase.h"
 #include <Arduino.h>
@@ -13,7 +13,7 @@ public:
     ~StorageSDFile() override;
 
     bool openRead(const char* path);
-    bool openWrite(const char* path);
+    bool openWrite(const char* path, bool append);
     bool isOpen() const override;
     uint32_t size() const override;
     uint32_t read(void* buffer, uint32_t bytes) override;
@@ -42,7 +42,7 @@ public:
     bool fileExists(const char* path) override;
 
 protected:
-    StorageBaseFile* openWrite(const char* gameId, const char* fileName) override;
+    StorageBaseFile* openWrite(const char* gameId, const char* fileName, bool append) override;
 
 private:
     static constexpr size_t PATH_MAX_LENGTH = 128;
@@ -54,8 +54,7 @@ private:
     bool ownsSpi = false;
     StorageSDFile fileSlot;
 
-    bool makeDataPath(char* output, size_t outputSize,
-                      const char* gameId, const char* fileName) const;
+    bool makeDataPath(char* output, size_t outputSize, const char* gameId, const char* fileName) const;
     bool ensureDirectory(const char* path);
     static bool isValidFileName(const char* fileName);
 };

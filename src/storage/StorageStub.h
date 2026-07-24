@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "StorageBase.h"
 
@@ -7,7 +7,7 @@ namespace PLAMIOmini {
 class StorageStub : public StorageBase
 {
 protected:
-    StorageBaseFile* openWrite(const char* gameId, const char* fileName) override;
+    StorageBaseFile* openWrite(const char* gameId, const char* fileName, bool append) override;
 
 public:
     bool begin() override;

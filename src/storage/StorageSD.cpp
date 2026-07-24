@@ -1,4 +1,4 @@
-#include "StorageSD.h"
+﻿#include "StorageSD.h"
 
 #include <cstring>
 
@@ -20,16 +20,20 @@ bool StorageSDFile::openRead(const char* path)
     return true;
 }
 
-bool StorageSDFile::openWrite(const char* path)
+bool StorageSDFile::openWrite(const char* path, bool append)
 {
     close();
-    if (SD.exists(path)) SD.remove(path);
+    if (!append && SD.exists(path)) SD.remove(path);
 
+#if defined(ARDUINO_ARCH_ESP32)
+    file = SD.open(path, append ? FILE_APPEND : FILE_WRITE);
+#else
     file = SD.open(path, FILE_WRITE);
+#endif
     if (!file) return false;
 
     mode = OpenMode::WRITE;
-    fileSize = 0;
+    fileSize = append ? static_cast<uint32_t>(file.size()) : 0;
     return true;
 }
 
@@ -53,8 +57,7 @@ uint32_t StorageSDFile::write(const void* buffer, uint32_t bytes)
 {
     if (mode != OpenMode::WRITE || (buffer == nullptr && bytes > 0)) return 0;
 
-    const uint32_t written = static_cast<uint32_t>(
-        file.write(static_cast<const uint8_t*>(buffer), bytes));
+    const uint32_t written = static_cast<uint32_t>(file.write(static_cast<const uint8_t*>(buffer), bytes));
     fileSize += written;
     return written;
 }
@@ -205,7 +208,7 @@ Storage::File* StorageSD::openRead(const char* gameId, const char* fileName)
     return openRead(path);
 }
 
-StorageBaseFile* StorageSD::openWrite(const char* gameId, const char* fileName)
+StorageBaseFile* StorageSD::openWrite(const char* gameId, const char* fileName, bool append)
 {
     if (!sdAvailable || !isValidGameId(gameId) || !isValidFileName(fileName)) return nullptr;
 
@@ -218,7 +221,7 @@ StorageBaseFile* StorageSD::openWrite(const char* gameId, const char* fileName)
     if (!makeDataPath(path, sizeof(path), gameId, fileName)) return nullptr;
 
     fileSlot.close();
-    return fileSlot.openWrite(path) ? &fileSlot : nullptr;
+    return fileSlot.openWrite(path, append) ? &fileSlot : nullptr;
 }
 
 bool StorageSD::directoryExists(const char* path)

@@ -44,7 +44,7 @@ bool StorageBase::writeBinaryFile(const char* gameId, const char* fileName, Bina
         return false;
     }
 
-    StorageBaseFile* file = openWrite(gameId, fileName);
+    StorageBaseFile* file = openWrite(gameId, fileName, false);
     if (file == nullptr) return false;
 
     const bool writeResult = writer(*file, arg);
@@ -54,9 +54,24 @@ bool StorageBase::writeBinaryFile(const char* gameId, const char* fileName, Bina
 
 bool StorageBase::writeUserFile(const char* gameId, const char* fileName, Storage::UserFileLineWriterHandler writer, void* arg)
 {
+    if (!supportsUserFileWrite()) return false;
+    return writeLines(gameId, fileName, writer, arg, false);
+}
+
+bool StorageBase::writeSaveDataInternal(
+    const char* gameId,
+    const char* fileName,
+    Storage::UserFileLineWriterHandler writer,
+    void* arg)
+{
+    return writeLines(gameId, fileName, writer, arg, false);
+}
+
+bool StorageBase::writeLines(const char* gameId, const char* fileName, Storage::UserFileLineWriterHandler writer, void* arg, bool append)
+{
     if (!isAvailable() || gameId == nullptr || fileName == nullptr || writer == nullptr) return false;
 
-    StorageBaseFile* file = openWrite(gameId, fileName);
+    StorageBaseFile* file = openWrite(gameId, fileName, append);
     if (file == nullptr) return false;
 
     bool ok = true;
@@ -88,9 +103,13 @@ bool StorageBase::writeUserFile(const char* gameId, const char* fileName, Storag
     return ok;
 }
 
-bool StorageBase::writeUserFile(const char* gameId, const char* fileName, const char* data)
+bool StorageBase::writeUserFile(
+    const char* gameId,
+    const char* fileName,
+    const char* data,
+    bool append)
 {
-    if (data == nullptr) return false;
+    if (!supportsUserFileWrite() || data == nullptr) return false;
 
     constexpr size_t SIMPLE_WRITE_MAX = 200;
     if (std::strlen(data) > SIMPLE_WRITE_MAX) return false;
@@ -101,15 +120,15 @@ bool StorageBase::writeUserFile(const char* gameId, const char* fileName, const 
         bool written;
     };
 
-    SingleWriteState state = {data, false};
-    return writeUserFile(gameId, fileName, [](std::string& line, void* arg) -> bool {
+    SingleWriteState state{data, false};
+    return writeLines(gameId, fileName, [](std::string& line, void* arg) -> bool {
         auto* state = static_cast<SingleWriteState*>(arg);
         if (state->written) return false;
 
         line.assign(state->data);
         state->written = true;
         return true;
-    }, &state);
+    }, &state, append);
 }
 
 bool StorageBase::readUserFile(const char* gameId, const char* fileName, Storage::UserFileLineReaderHandler handler, void* arg)

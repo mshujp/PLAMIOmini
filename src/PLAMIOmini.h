@@ -559,7 +559,11 @@ public:
     //   - For writes of 200 bytes or less, use this function instead of UserFileLineWriterHandler.
     //   - Maximum size: 200 bytes.
     //   - Larger writes must use UserFileLineWriterHandler.
-    virtual bool writeUserFile(const char* gameId, const char* fileName, const char* data) = 0;
+    //   - Newline characters contained in data are preserved.
+    //   - One newline character is automatically appended after the provided data.
+    //   - If append is false, the existing file is replaced.
+    //   - If append is true, the data is appended to the existing file.
+    virtual bool writeUserFile(const char* gameId, const char* fileName, const char* data, bool append = false) = 0;
 
     // ## Read-only resource files
     // Opens a packaged read-only resource.
@@ -573,6 +577,9 @@ public:
 
 protected:
     virtual ~Storage() {};
+private:
+    friend class SaveData;
+    virtual bool writeSaveDataInternal(const char* gameId, const char* fileName, UserFileLineWriterHandler writer, void* arg ) = 0;
 };
 
 struct StorageEEPROMConfig

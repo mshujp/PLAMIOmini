@@ -165,8 +165,12 @@ Storage::File* StorageEEPROM::openRead(const char* gameId, const char* fileName)
     return &fileSlot;
 }
 
-StorageBaseFile* StorageEEPROM::openWrite(const char* gameId, const char* fileName)
+StorageBaseFile* StorageEEPROM::openWrite(
+    const char* gameId,
+    const char* fileName,
+    bool append)
 {
+    if (append) return nullptr;
     if (!ready || !isValidGameId(gameId) || fileName == nullptr || fileName[0] == '\0') return nullptr;
 
     const int index = allocate(gameId, fileName);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "StorageBase.h"
 
@@ -45,7 +45,8 @@ public:
     bool fileExists(const char* path) override;
 
 protected:
-    StorageBaseFile* openWrite(const char* gameId, const char* fileName) override;
+    StorageBaseFile* openWrite(const char* gameId, const char* fileName, bool append) override;
+    bool supportsUserFileWrite() const override { return false; }
 
 private:
     friend class StorageEEPROMFile;

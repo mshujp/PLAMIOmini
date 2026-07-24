@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "PLAMIOmini.h"
 
@@ -29,7 +29,8 @@ private:
 
 protected:
     static bool isValidGameId(const char* gameId);
-    virtual StorageBaseFile* openWrite(const char* gameId, const char* fileName) = 0;
+    virtual StorageBaseFile* openWrite(const char* gameId, const char* fileName, bool append) = 0;
+    virtual bool supportsUserFileWrite() const { return true; }
 
 public:
     using BinaryFileWriterHandler = bool(*)(StorageBaseFile& file, void* arg);
@@ -41,10 +42,14 @@ public:
     virtual File* openRead(const char* gameId, const char* fileName) = 0;
     bool readUserFile(const char* gameId, const char* fileName, Storage::UserFileLineReaderHandler handler, void* arg) override;
     bool writeUserFile(const char* gameId, const char* fileName, Storage::UserFileLineWriterHandler writer, void* arg) override;
-    bool writeUserFile(const char* gameId, const char* fileName, const char* data) override;
+    bool writeUserFile(const char* gameId, const char* fileName, const char* data, bool append) override;
 
     bool userFileExists(const char* gameId, const char* fileName);
     bool writeBinaryFile(const char* gameId, const char* fileName, BinaryFileWriterHandler writer, void* arg);
+
+private:
+    bool writeSaveDataInternal(const char* gameId, const char* fileName, Storage::UserFileLineWriterHandler writer, void* arg) override;
+    bool writeLines(const char* gameId, const char* fileName, Storage::UserFileLineWriterHandler writer, void* arg, bool append);
 };
 
 } // namespace

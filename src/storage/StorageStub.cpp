@@ -1,4 +1,4 @@
-﻿#include "StorageStub.h"
+#include "StorageStub.h"
 
 using namespace PLAMIOmini;
 
@@ -21,7 +21,7 @@ Storage::File* StorageStub::openRead(const char* gameId, const char* fileName)
     return nullptr;
 }
 
-StorageBaseFile* StorageStub::openWrite(const char* gameId, const char* fileName)
+StorageBaseFile* StorageStub::openWrite(const char* gameId, const char* fileName, bool append)
 {
     return nullptr;
 }
