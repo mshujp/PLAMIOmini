@@ -1,4 +1,4 @@
-#include "InputPS2.h"
+#include "InputPS.h"
 #include "GpioButtons.h"
 #include "../util/Platform.h"
 #include <Arduino.h>
@@ -15,7 +15,7 @@ constexpr uint32_t buttonMask(Input::Button button)
 constexpr uint8_t TRANSFER_HALF_PERIOD_USEC = 4;
 constexpr uint8_t ATTENTION_SETUP_USEC = 10;
 
-enum PS2Button : uint16_t
+enum PSButton : uint16_t
 {
     SELECT   = 1u << 0,
     L3       = 1u << 1,
@@ -36,7 +36,7 @@ enum PS2Button : uint16_t
 };
 }
 
-InputPS2::InputPS2(const InputPs2Config& config)
+InputPS::InputPS(const InputPSConfig& config)
     : clockPin(config.clockPin),
       commandPin(config.commandPin),
       attentionPin(config.attentionPin),
@@ -45,7 +45,7 @@ InputPS2::InputPS2(const InputPs2Config& config)
 {
 }
 
-bool InputPS2::begin()
+bool InputPS::begin()
 {
     if (clockPin < 0 || commandPin < 0 || attentionPin < 0 || dataPin < 0)
     {
@@ -67,7 +67,7 @@ bool InputPS2::begin()
     return available;
 }
 
-void InputPS2::end()
+void InputPS::end()
 {
     available = false;
     if (attentionPin >= 0) digitalWrite(attentionPin,HIGH);
@@ -76,7 +76,7 @@ void InputPS2::end()
     reset();
 }
 
-uint8_t InputPS2::transferByte(uint8_t command)
+uint8_t InputPS::transferByte(uint8_t command)
 {
     uint8_t response = 0;
     for (uint8_t bit = 0; bit < 8; ++bit)
@@ -97,7 +97,7 @@ uint8_t InputPS2::transferByte(uint8_t command)
     return response;
 }
 
-bool InputPS2::pollController(uint32_t& buttons)
+bool InputPS::pollController(uint32_t& buttons)
 {
     static constexpr uint8_t COMMAND[] = {0x01, 0x42, 0x00, 0x00, 0x00};
     uint8_t response[sizeof(COMMAND)]{};
@@ -124,18 +124,18 @@ bool InputPS2::pollController(uint32_t& buttons)
         static_cast<uint16_t>(static_cast<uint16_t>(response[4]) << 8)));
 
     buttons = 0;
-    if (pressed & PS2Button::UP)       buttons |= buttonMask(Button::UP);
-    if (pressed & PS2Button::DOWN)     buttons |= buttonMask(Button::DOWN);
-    if (pressed & PS2Button::LEFT)     buttons |= buttonMask(Button::LEFT);
-    if (pressed & PS2Button::RIGHT)    buttons |= buttonMask(Button::RIGHT);
-    if (pressed & PS2Button::CROSS)    buttons |= buttonMask(Button::A);
-    if (pressed & PS2Button::CIRCLE)   buttons |= buttonMask(Button::B);
-    if (pressed & PS2Button::SQUARE)   buttons |= buttonMask(Button::X);
-    if (pressed & PS2Button::TRIANGLE) buttons |= buttonMask(Button::Y);
-    if (pressed & PS2Button::L1)       buttons |= buttonMask(Button::L);
-    if (pressed & PS2Button::R1)       buttons |= buttonMask(Button::R);
-    if (pressed & PS2Button::START)    buttons |= buttonMask(Button::START);
-    if (pressed & PS2Button::SELECT)   buttons |= buttonMask(Button::SELECT);
+    if (pressed & PSButton::UP)       buttons |= buttonMask(Button::UP);
+    if (pressed & PSButton::DOWN)     buttons |= buttonMask(Button::DOWN);
+    if (pressed & PSButton::LEFT)     buttons |= buttonMask(Button::LEFT);
+    if (pressed & PSButton::RIGHT)    buttons |= buttonMask(Button::RIGHT);
+    if (pressed & PSButton::CROSS)    buttons |= buttonMask(Button::A);
+    if (pressed & PSButton::CIRCLE)   buttons |= buttonMask(Button::B);
+    if (pressed & PSButton::SQUARE)   buttons |= buttonMask(Button::X);
+    if (pressed & PSButton::TRIANGLE) buttons |= buttonMask(Button::Y);
+    if (pressed & PSButton::L1)       buttons |= buttonMask(Button::L);
+    if (pressed & PSButton::R1)       buttons |= buttonMask(Button::R);
+    if (pressed & PSButton::START)    buttons |= buttonMask(Button::START);
+    if (pressed & PSButton::SELECT)   buttons |= buttonMask(Button::SELECT);
 
     if (buttonMapping.VOL_DOWN < 0 && (buttons & buttonMask(Button::L)))
     {
@@ -151,7 +151,7 @@ bool InputPS2::pollController(uint32_t& buttons)
     return true;
 }
 
-uint32_t InputPS2::readButtons()
+uint32_t InputPS::readButtons()
 {
     uint32_t buttons = 0;
     pollController(buttons);

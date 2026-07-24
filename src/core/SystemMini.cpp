@@ -8,7 +8,7 @@
 #include "../graphics/GraphicsILI9341.h"
 #include "../graphics/GraphicsSSD1306.h"
 #include "../input/InputGpioButtons.h"
-#include "../input/InputPS2.h"
+#include "../input/InputPS.h"
 #include "../input/InputSnes.h"
 #include "../audio/AudioI2S.h"
 #include "../audio/AudioPWM.h"
@@ -327,9 +327,9 @@ void start(const GraphicsConfig& graphicsConfig, const InputConfig& inputConfig,
         static InputSnes instance(std::get<InputSnesConfig>(inputConfig));
         inputDriver = &instance;
     }
-    else if (std::holds_alternative<InputPs2Config>(inputConfig))
+    else if (std::holds_alternative<InputPSConfig>(inputConfig))
     {
-        static InputPS2 instance(std::get<InputPs2Config>(inputConfig));
+        static InputPS instance(std::get<InputPSConfig>(inputConfig));
         inputDriver = &instance;
     }
 
@@ -377,4 +377,3 @@ void start(const GraphicsConfig& graphicsConfig, const InputConfig& inputConfig,
 }
 
 } // namespace PLAMIOmini
-

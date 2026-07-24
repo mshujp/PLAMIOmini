@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // PLAMIO mini
 // AI-Friendly Game Framework
 //
@@ -188,7 +188,7 @@ struct InputSnesConfig {
     int8_t dataPin = -1;
     ButtonMapping buttonMapping{};
 };
-struct InputPs2Config
+struct InputPSConfig
 {
     int8_t clockPin = -1;
     int8_t commandPin = -1;
@@ -199,7 +199,7 @@ struct InputPs2Config
 using InputConfig = std::variant<
     InputGpioButtonsConfig,
     InputSnesConfig, 
-    InputPs2Config
+    InputPSConfig
 >;
 
 

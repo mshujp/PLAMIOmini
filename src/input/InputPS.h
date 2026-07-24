@@ -4,11 +4,11 @@
 
 namespace PLAMIOmini {
 
-// Experimental PlayStation 2 controller input implementation.
+// Experimental PlayStation controller input implementation.
 // Compile-tested only; communication with real hardware has not been verified.
 // Supports digital buttons only. ACK, analog axes, vibration, and mode setup
 // are intentionally not implemented.
-class InputPS2 : public InputBase
+class InputPS : public InputBase
 {
 private:
     int8_t clockPin;
@@ -22,7 +22,7 @@ private:
     uint32_t readButtons() override;
 
 public:
-    explicit InputPS2(const InputPs2Config& config);
+    explicit InputPS(const InputPSConfig& config);
 
     bool begin() override;
     void end() override;
