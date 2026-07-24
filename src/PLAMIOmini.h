@@ -263,6 +263,11 @@ public:
     virtual void fillCircle(int16_t x, int16_t y, uint16_t r, Color color) = 0;
     virtual void fillCircle(int16_t x, int16_t y, uint16_t rx, uint16_t ry, Color color) = 0;
 
+    // [!IMPORTANT] AI WARNING:
+    //   Use only the enum values defined below.
+    //   Never invent or guess font names.
+    //   e.g., Do not use SIZE_14, SIZE_24. SIZE_18J, SIZE_25J, or SIZE_42J.
+    //   Undefined font names will not compile.
     enum Font : uint8_t {
         // When the text width is required, always use `getTextWidth()` to obtain it.
         SIZE_10,  // very small / debug                   (height: 10px) English only
@@ -275,11 +280,6 @@ public:
         SIZE_32B, // Bold title                           (height: 32px) English only
         SIZE_42,  // big title                            (height: 40px) English only
         SIZE_42B, // Bold big title                       (height: 42px) English only
-
-        // --- Fonts with Japanese text support ---
-        SIZE_16J, // Japanese text  (height: 16px)
-        SIZE_20J, // Japanese text  (height: 20px scaling)
-        SIZE_32J  // Japanese text  (height: 32px scaling)
     };
     virtual uint16_t getTextWidth(const char* text, Font font) = 0;
     virtual uint16_t getTextHeight(const char* text, Font font) = 0;
@@ -293,11 +293,6 @@ public:
         MIDDLE,
         BOTTOM
     };
-    // [!IMPORTANT] AI WARNING:
-    //   Use only the enum values defined below.
-    //   Never invent or guess font names.
-    //   e.g., Do not use SIZE_14, SIZE_18J, SIZE_25J, or SIZE_42J.
-    //   Undefined font names will not compile.
     virtual void drawString(const char* str, int16_t x, int16_t y, Color color, Font font) = 0;
     virtual void drawString(const char* str, int16_t x, int16_t y, Color color, Font font, HorizontalAlign ha, VerticalAlign va) = 0;
 
