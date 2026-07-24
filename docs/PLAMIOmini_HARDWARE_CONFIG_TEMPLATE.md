@@ -59,7 +59,8 @@
     PWM       : -1
 
 - [ ] I2S
-    BCLK      : -1        <!-- LRCLK uses BCLK + 1 -->
+    BCLK      : -1
+    LRCLK     : -1    <!-- LRCLK/WS; on Pico(rp2040/rp2350), wsPin must equal bclkPin + 1. -->
     DATA      : -1
 
 - [ ] None
