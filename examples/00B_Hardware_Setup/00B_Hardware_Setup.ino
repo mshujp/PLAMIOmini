@@ -9,8 +9,9 @@ Change each value to match your hardware.
 
 Only one configuration from each section should be used.
 
-This file is a configuration reference and an interface compile check.
-Select one configuration from each category near the end of the file.
+This file is a copy-and-paste hardware configuration reference.
+One configuration in each category is enabled. Alternative configurations
+are commented out.
 */
 
 #include <PLAMIOmini.h>
@@ -26,7 +27,7 @@ using namespace PLAMIOmini;
 // GraphicsILI9341
 // -----------------------------------------------------------------------------
 
-GraphicsILI9341Config ili9341Config = {
+GraphicsConfig graphicsConfig = GraphicsILI9341Config{
     .spiHost = 0,  // 0 or 1. Select the SPI host that matches the pins.
                    // When using an SD card, SPI0 for SD and SPI1 for the display is recommended.
     .spiWriteFreq    = 62500000,
@@ -43,7 +44,8 @@ GraphicsILI9341Config ili9341Config = {
 // GraphicsSSD1306
 // -----------------------------------------------------------------------------
 
-GraphicsSSD1306Config ssd1306Config = {
+/*
+GraphicsConfig graphicsConfig = GraphicsSSD1306Config{
     .i2cPort    = 0,            // 0 or 1
     .i2cAddr    = 0x3C,         // 0x3C or 0x3D, depending on the module
     .sdaPin     = -1,
@@ -51,6 +53,7 @@ GraphicsSSD1306Config ssd1306Config = {
     .resetPin   = -1,
     .oledRotate = 0,  // 0: Normal  2: Rotated 180 degrees
 };
+*/
 
 /*
 ===============================================================================
@@ -62,27 +65,24 @@ GraphicsSSD1306Config ssd1306Config = {
 // InputGpioButtons
 // -----------------------------------------------------------------------------
 
-ButtonMapping buttonMapping = {
-    .UP       = -1,
-    .DOWN     = -1,
-    .LEFT     = -1,
-    .RIGHT    = -1,
-    .A        = -1,
-    .B        = -1,
-    .X        = -1,
-    .Y        = -1,
-    .L        = -1,
-    .R        = -1,
-    .START    = -1,
-    .SELECT   = -1,
-    .VOL_UP   = -1,
-    .VOL_DOWN = -1,
-    .HOME     = -1,
-    .MUTE     = -1,
-};
-
-InputGpioButtonsConfig gpioButtonsConfig = {
-    .buttonMapping = buttonMapping,
+InputConfig inputConfig = InputGpioButtonsConfig{
+    .buttonMapping = {
+        .UP       = -1,
+        .DOWN     = -1,
+        .LEFT     = -1,
+        .RIGHT    = -1,
+        .A        = -1,
+        .B        = -1,
+        .X        = -1,
+        .Y        = -1,
+        .L        = -1,
+        .R        = -1,
+        .START    = -1,
+        .SELECT   = -1,
+        .VOL_UP   = -1,
+        .VOL_DOWN = -1,
+        .MUTE     = -1,
+    },
 };
 
 
@@ -90,7 +90,8 @@ InputGpioButtonsConfig gpioButtonsConfig = {
 // InputSnes
 // -----------------------------------------------------------------------------
 
-InputSnesConfig snesConfig = {
+/*
+InputConfig inputConfig = InputSnesConfig{
     .clkPin  = -1,
     .latPin  = -1,
     .dataPin = -1,
@@ -110,10 +111,10 @@ InputSnesConfig snesConfig = {
         .SELECT   = -1,
         .VOL_UP   = -1,
         .VOL_DOWN = -1,
-        .HOME     = -1,
         .MUTE     = -1,
     },
 };
+*/
 
 /*
 ===============================================================================
@@ -125,19 +126,23 @@ InputSnesConfig snesConfig = {
 // AudioI2S
 // -----------------------------------------------------------------------------
 
-AudioI2SConfig i2sConfig = {
+/*
+AudioConfig audioConfig = AudioI2SConfig{
     .bclkPin = -1,
     .wsPin = -1, // LRCLK/WS; on Pico(rp2040/rp2350), wsPin must equal bclkPin + 1.
     .dataPin = -1,
 };
+*/
 
 // -----------------------------------------------------------------------------
 // AudioPWM
 // -----------------------------------------------------------------------------
 
-AudioPWMConfig pwmConfig = {
+/*
+AudioConfig audioConfig = AudioPWMConfig{
     .pwmPin = -1,
 };
+*/
 
 // -----------------------------------------------------------------------------
 // AudioStub
@@ -145,7 +150,7 @@ AudioPWMConfig pwmConfig = {
 // Use when audio hardware is not supported or not used.
 // -----------------------------------------------------------------------------
 
-AudioStubConfig stubAudioConfig;
+AudioConfig audioConfig = AudioStubConfig{};
 
 
 /*
@@ -158,7 +163,8 @@ AudioStubConfig stubAudioConfig;
 // StorageSD
 // -----------------------------------------------------------------------------
 
-StorageSDConfig sdConfig = {
+/*
+StorageConfig storageConfig = StorageSDConfig{
     .spiHost = 0, // 0 or 1. Select the SPI host that matches the pins.
                   // When using a display, SPI0 for SD and SPI1 for the display is recommended.
     .misoPin  = -1,
@@ -167,16 +173,19 @@ StorageSDConfig sdConfig = {
     .csPin    = -1,
     .baudRate = 12000000,
 };
+*/
 
 // -----------------------------------------------------------------------------
 // StorageEEPROM  Default values are recommended
 // -----------------------------------------------------------------------------
 
-StorageEEPROMConfig eepromConfig = {
+/*
+StorageConfig storageConfig = StorageEEPROMConfig{
     .magic      = 0x504d,
     .version    = 1,
     .eepromSize = 4096,
 };
+*/
 
 // -----------------------------------------------------------------------------
 // StorageStub
@@ -184,7 +193,7 @@ StorageEEPROMConfig eepromConfig = {
 // Use when storage hardware is not supported or not used.
 // -----------------------------------------------------------------------------
 
-StorageStubConfig stubStorageConfig;
+StorageConfig storageConfig = StorageStubConfig{};
 
 
 
@@ -211,16 +220,11 @@ public:
     void onTerminate(Storage& storage) override {}
 };
 
-// Select one configuration from each category.
-GraphicsConfig graphicsConfig = ili9341Config;  // or: ssd1306Config
-InputConfig inputConfig = gpioButtonsConfig;    // or: snesConfig
-AudioConfig audioConfig = stubAudioConfig;      // or: i2sConfig, pwmConfig
-StorageConfig storageConfig = stubStorageConfig; // or: sdConfig, eepromConfig
 MyGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, audioConfig, storageConfig, game);
 }
 
 void loop()

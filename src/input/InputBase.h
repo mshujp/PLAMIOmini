@@ -27,7 +27,6 @@ private:
         Button::SELECT,
         Button::VOL_UP,
         Button::VOL_DOWN,
-        Button::HOME,
         Button::MUTE
     };
 

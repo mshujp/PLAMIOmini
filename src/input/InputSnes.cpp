@@ -98,18 +98,6 @@ uint32_t InputSnes::readButtons()
         }
     }
 
-    if (buttonMapping.HOME < 0)
-    {
-        // SELECT + START acts as HOME.
-        if ((buttons & static_cast<uint32_t>(Button::SELECT)) &&
-            (buttons & static_cast<uint32_t>(Button::START)))
-        {
-            buttons &= ~static_cast<uint32_t>(Button::SELECT);
-            buttons &= ~static_cast<uint32_t>(Button::START);
-            buttons |= static_cast<uint32_t>(Button::HOME);
-        }
-    }
-
     // Auxiliary GPIO buttons are already mapped to their final logical roles.
     buttons |= GpioButtons::read(buttonMapping);
 

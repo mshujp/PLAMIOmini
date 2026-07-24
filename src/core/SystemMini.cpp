@@ -296,8 +296,7 @@ uint8_t SystemMini::loadVolume()
     return static_cast<uint8_t>(data.getUInt32("volume", 1));
 }
 
-void start(const GraphicsConfig& graphicsConfig, InputConfig& inputConfig,
-           StorageConfig& storageConfig, AudioConfig& audioConfig, GameMini& game)
+void start(const GraphicsConfig& graphicsConfig, const InputConfig& inputConfig, const AudioConfig& audioConfig, const StorageConfig& storageConfig, GameMini& game)
 {
     GraphicsBase* graphics = nullptr;
     InputBase* inputDriver = nullptr;

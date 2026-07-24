@@ -147,15 +147,6 @@ bool InputPS2::pollController(uint32_t& buttons)
         buttons |= buttonMask(Button::VOL_UP);
         buttons &= ~buttonMask(Button::R);
     }
-    if (buttonMapping.HOME < 0 &&
-        (buttons & buttonMask(Button::SELECT)) &&
-        (buttons & buttonMask(Button::START)))
-    {
-        buttons &= ~buttonMask(Button::SELECT);
-        buttons &= ~buttonMask(Button::START);
-        buttons |= buttonMask(Button::HOME);
-    }
-
     buttons |= GpioButtons::read(buttonMapping);
     return true;
 }

@@ -21,7 +21,7 @@ Before compiling:
 
 using namespace PLAMIOmini;
 
-GraphicsILI9341Config graphicsConfig = {
+GraphicsConfig graphicsConfig = GraphicsILI9341Config{
     .spiHost         = 0,
     .spiWriteFreq    = 60000000,
     .clkPin          = -1,
@@ -33,22 +33,26 @@ GraphicsILI9341Config graphicsConfig = {
     .lcdRotate       = 0,
 };
 
-ButtonMapping buttonMapping = {
-    .UP       = -1,
-    .DOWN     = -1,
-    .LEFT     = -1,
-    .RIGHT    = -1,
-    .A        = -1,
-    .B        = -1,
-    .START    = -1,
-    .VOL_UP   = -1,
-    .VOL_DOWN = -1,
-    .MUTE     = -1,
+InputConfig inputConfig = InputGpioButtonsConfig{
+    .buttonMapping = {
+        .UP       = -1,
+        .DOWN     = -1,
+        .LEFT     = -1,
+        .RIGHT    = -1,
+        .A        = -1,
+        .B        = -1,
+        .START    = -1,
+        .VOL_UP   = -1,
+        .VOL_DOWN = -1,
+        .MUTE     = -1,
+    }
 };
 
 AudioConfig audioConfig = AudioPWMConfig{
     .pwmPin = -1,
 };
+
+StorageConfig storageConfig = StorageStubConfig{};
 
 static const Audio::ToneNote REVERSI_BGM_NOTES[] = {
     { Audio::ToneNote::C4, Audio::ToneNote::E },
@@ -623,13 +627,11 @@ protected:
     }
 };
 
-InputConfig inputConfig = InputGpioButtonsConfig{.buttonMapping = buttonMapping};
-StorageConfig storageConfig = StorageStubConfig{};
 ReversiGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, audioConfig, storageConfig, game);
 }
 
 void loop()

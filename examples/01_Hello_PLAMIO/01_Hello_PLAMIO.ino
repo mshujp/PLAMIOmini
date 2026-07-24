@@ -20,7 +20,7 @@ using namespace PLAMIOmini;
 // Hardware configuration
 // =============================================================================
 
-GraphicsILI9341Config graphicsConfig = {
+GraphicsConfig graphicsConfig = GraphicsILI9341Config{
     .spiHost         = 0,
     .spiWriteFreq    = 60000000,
     .clkPin          = -1,
@@ -32,19 +32,23 @@ GraphicsILI9341Config graphicsConfig = {
     .lcdRotate       = 0,
 };
 
-ButtonMapping buttonMapping = {
-    .UP       = -1,
-    .DOWN     = -1,
-    .LEFT     = -1,
-    .RIGHT    = -1,
-    .A        = -1,
-    .B        = -1,
-    .START    = -1,
-    .VOL_UP   = -1,
-    .VOL_DOWN = -1,
-    .MUTE     = -1,
+InputConfig inputConfig = InputGpioButtonsConfig{
+    .buttonMapping = {
+        .UP       = -1,
+        .DOWN     = -1,
+        .LEFT     = -1,
+        .RIGHT    = -1,
+        .A        = -1,
+        .B        = -1,
+        .START    = -1,
+        .VOL_UP   = -1,
+        .VOL_DOWN = -1,
+        .MUTE     = -1,
+    }
 };
 
+AudioConfig audioConfig = AudioStubConfig{};
+StorageConfig storageConfig = StorageStubConfig{};
 
 // =============================================================================
 // Game
@@ -137,9 +141,6 @@ protected:
 // PLAMIOmini objects
 // =============================================================================
 
-InputConfig inputConfig = InputGpioButtonsConfig{.buttonMapping = buttonMapping};
-StorageConfig storageConfig = StorageStubConfig{};
-AudioConfig audioConfig = AudioStubConfig{};
 HelloPLAMIOGame game;
 
 
@@ -149,7 +150,7 @@ HelloPLAMIOGame game;
 
 void setup()
 {
-    PLAMIOmini::start(graphicsConfig, inputConfig, storageConfig, audioConfig, game);
+    PLAMIOmini::start(graphicsConfig, inputConfig, audioConfig, storageConfig, game);
 }
 
 void loop()

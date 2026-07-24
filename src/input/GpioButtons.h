@@ -13,7 +13,7 @@ inline void init(const ButtonMapping& mapping)
         mapping.UP, mapping.DOWN, mapping.LEFT, mapping.RIGHT,
         mapping.A, mapping.B, mapping.X, mapping.Y,
         mapping.L, mapping.R, mapping.START, mapping.SELECT,
-        mapping.VOL_UP, mapping.VOL_DOWN, mapping.HOME, mapping.MUTE
+        mapping.VOL_UP, mapping.VOL_DOWN, mapping.MUTE
     };
 
     for (int16_t pin : pins)
@@ -39,7 +39,7 @@ inline uint32_t read(const ButtonMapping& mapping)
         {Input::L, mapping.L}, {Input::R, mapping.R},
         {Input::START, mapping.START}, {Input::SELECT, mapping.SELECT},
         {Input::VOL_UP, mapping.VOL_UP}, {Input::VOL_DOWN, mapping.VOL_DOWN},
-        {Input::HOME, mapping.HOME}, {Input::MUTE, mapping.MUTE}
+        {Input::MUTE, mapping.MUTE}
     };
 
     uint32_t value = 0;

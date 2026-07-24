@@ -130,10 +130,9 @@ public:
 
         // System-reserved virtual buttons. Hardware implementations may map
         // physical buttons or shortcuts to these.
-        HOME     = 1u << 25,
-        VOL_UP   = 1u << 26,
-        VOL_DOWN = 1u << 27,
-        MUTE     = 1u << 28
+        VOL_UP   = 1u << 25,
+        VOL_DOWN = 1u << 26,
+        MUTE     = 1u << 27
     };
     virtual bool pressed(Button b) const = 0;
     virtual bool justPressed(Button b) const = 0;
@@ -178,7 +177,6 @@ struct ButtonMapping
     int16_t SELECT   = -1;
     int16_t VOL_UP   = -1;
     int16_t VOL_DOWN = -1;
-    int16_t HOME     = -1;
     int16_t MUTE     = -1;
 };
 struct InputGpioButtonsConfig {
@@ -762,7 +760,7 @@ public:
 };
 
 
-void start(const GraphicsConfig& graphicsConfig, InputConfig& input, StorageConfig& storage, AudioConfig& audio, GameMini& game);
+void start(const GraphicsConfig& graphicsConfig, const InputConfig& inputConfig, const AudioConfig& audioConfig, const StorageConfig& storageConfig, GameMini& game);
 
 
 } // namespace PLAMIO mini

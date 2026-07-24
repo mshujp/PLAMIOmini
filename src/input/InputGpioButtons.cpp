@@ -28,7 +28,6 @@ constexpr MappingEntry MAPPINGS[] =
     {Input::SELECT, &ButtonMapping::SELECT},
     {Input::VOL_UP, &ButtonMapping::VOL_UP},
     {Input::VOL_DOWN, &ButtonMapping::VOL_DOWN},
-    {Input::HOME, &ButtonMapping::HOME},
     {Input::MUTE, &ButtonMapping::MUTE}
 };
 
