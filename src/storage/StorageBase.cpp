@@ -1,4 +1,4 @@
-﻿#include "StorageBase.h"
+#include "StorageBase.h"
 
 #include <stdio.h>
 #include <cstring>

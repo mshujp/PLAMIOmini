@@ -1,4 +1,4 @@
-﻿#include "StorageSD.h"
+#include "StorageSD.h"
 
 #include <cstring>
 
@@ -13,7 +13,11 @@ bool StorageSDFile::openRead(const char* path)
 {
     close();
     file = SD.open(path, FILE_READ);
-    if (!file || file.isDirectory()) return false;
+    if (!file || file.isDirectory())
+    {
+        if (file) file.close();
+        return false;
+    }
 
     mode = OpenMode::READ;
     fileSize = static_cast<uint32_t>(file.size());
@@ -57,16 +61,19 @@ uint32_t StorageSDFile::write(const void* buffer, uint32_t bytes)
 {
     if (mode != OpenMode::WRITE || (buffer == nullptr && bytes > 0)) return 0;
 
-    const uint32_t written = static_cast<uint32_t>(file.write(static_cast<const uint8_t*>(buffer), bytes));
+    const uint32_t written = static_cast<uint32_t>(
+        file.write(static_cast<const uint8_t*>(buffer), bytes));
     fileSize += written;
     return written;
 }
 
 void StorageSDFile::close()
 {
+    const bool wasOpen = mode != OpenMode::CLOSED;
     if (file) file.close();
     mode = OpenMode::CLOSED;
     fileSize = 0;
+    if (wasOpen && owner != nullptr) owner->unmountCard();
 }
 
 bool StorageSDFile::closeWrite()
@@ -77,11 +84,12 @@ bool StorageSDFile::closeWrite()
     file.close();
     mode = OpenMode::CLOSED;
     fileSize = 0;
+    if (owner != nullptr) owner->unmountCard();
     return true;
 }
 
 StorageSD::StorageSD(const StorageSDConfig& value)
-    : config(value)
+    : config(value), fileSlot(this)
 {
 }
 
@@ -92,7 +100,7 @@ StorageSD::~StorageSD()
 
 bool StorageSD::begin()
 {
-    if (sdAvailable) return true;
+    if (spiReady) return isAvailable();
     if (config.csPin < 0) return false;
 
 #if defined(ARDUINO_ARCH_RP2040)
@@ -120,35 +128,68 @@ bool StorageSD::begin()
     spi->begin();
 #endif
 
+    spiReady = true;
+    availabilityCached = false;
+    return isAvailable();
+}
+
+bool StorageSD::mountCard()
+{
+    if (sdMounted) return true;
+    if (!spiReady || spi == nullptr) return false;
+
 #if defined(ARDUINO_ARCH_RP2040)
-    sdAvailable = SD.begin(config.csPin, config.baudRate, *spi);
+    sdMounted = SD.begin(config.csPin, config.baudRate, *spi);
 #else
-    sdAvailable = SD.begin(config.csPin, *spi, config.baudRate);
+    sdMounted = SD.begin(config.csPin, *spi, config.baudRate);
 #endif
-    if (!sdAvailable)
+    updateAvailabilityCache(sdMounted);
+    return sdMounted;
+}
+
+void StorageSD::unmountCard()
+{
+    if (!sdMounted) return;
+    SD.end();
+    sdMounted = false;
+}
+
+void StorageSD::updateAvailabilityCache(bool available) const
+{
+    cachedAvailable = available;
+    availabilityCached = true;
+    lastAvailabilityCheckMsec = millis();
+}
+
+bool StorageSD::isAvailable() const
+{
+    const uint32_t now = millis();
+    if (availabilityCached && static_cast<uint32_t>(now - lastAvailabilityCheckMsec) < AVAILABILITY_CACHE_MSEC)
     {
-        end();
-        return false;
+        return cachedAvailable;
     }
-    if (!ensureDirectory(ROOT_DIR))
-    {
-        end();
-        return false;
-    }
-    return true;
+
+    StorageSD* self = const_cast<StorageSD*>(this);
+    const bool wasMounted = self->sdMounted;
+    const bool available = self->mountCard();
+    if (!wasMounted && available) self->unmountCard();
+    self->updateAvailabilityCache(available);
+    return available;
 }
 
 void StorageSD::end()
 {
     fileSlot.close();
-    if (sdAvailable) SD.end();
-
-    sdAvailable = false;
+    unmountCard();
     if (spi != nullptr) spi->end();
     if (ownsSpi) delete spi;
 
     spi = nullptr;
     ownsSpi = false;
+    spiReady = false;
+    availabilityCached = false;
+    cachedAvailable = false;
+    lastAvailabilityCheckMsec = 0;
 }
 
 bool StorageSD::isValidFileName(const char* fileName)
@@ -173,7 +214,7 @@ bool StorageSD::makeDataPath(char* output, size_t outputSize,
 
 bool StorageSD::ensureDirectory(const char* path)
 {
-    if (!sdAvailable || path == nullptr || path[0] != '/') return false;
+    if (!sdMounted || path == nullptr || path[0] != '/') return false;
 
     char partial[PATH_MAX_LENGTH] = {};
     const size_t length = strlen(path);
@@ -193,54 +234,75 @@ bool StorageSD::ensureDirectory(const char* path)
 
 Storage::File* StorageSD::openRead(const char* path)
 {
-    if (!sdAvailable || path == nullptr) return nullptr;
-
+    if (path == nullptr) return nullptr;
     fileSlot.close();
-    return fileSlot.openRead(path) ? &fileSlot : nullptr;
+    if (!mountCard()) return nullptr;
+    if (fileSlot.openRead(path)) return &fileSlot;
+    unmountCard();
+    return nullptr;
 }
 
 Storage::File* StorageSD::openRead(const char* gameId, const char* fileName)
 {
-    if (!sdAvailable) return nullptr;
-
     char path[PATH_MAX_LENGTH];
     if (!makeDataPath(path, sizeof(path), gameId, fileName)) return nullptr;
     return openRead(path);
 }
 
-StorageBaseFile* StorageSD::openWrite(const char* gameId, const char* fileName, bool append)
+StorageBaseFile* StorageSD::openWrite(
+    const char* gameId,
+    const char* fileName,
+    bool append)
 {
-    if (!sdAvailable || !isValidGameId(gameId) || !isValidFileName(fileName)) return nullptr;
+    if (!isValidGameId(gameId) || !isValidFileName(fileName)) return nullptr;
+
+    fileSlot.close();
+    if (!mountCard()) return nullptr;
 
     char directory[PATH_MAX_LENGTH];
     const int count = snprintf(directory, sizeof(directory), "%s/%s", ROOT_DIR, gameId);
     if (count < 0 || static_cast<size_t>(count) >= sizeof(directory) ||
-        !ensureDirectory(directory)) return nullptr;
+        !ensureDirectory(directory))
+    {
+        unmountCard();
+        return nullptr;
+    }
 
     char path[PATH_MAX_LENGTH];
-    if (!makeDataPath(path, sizeof(path), gameId, fileName)) return nullptr;
+    if (!makeDataPath(path, sizeof(path), gameId, fileName))
+    {
+        unmountCard();
+        return nullptr;
+    }
 
-    fileSlot.close();
-    return fileSlot.openWrite(path, append) ? &fileSlot : nullptr;
+    if (fileSlot.openWrite(path, append)) return &fileSlot;
+    unmountCard();
+    return nullptr;
 }
 
 bool StorageSD::directoryExists(const char* path)
 {
-    if (!sdAvailable || path == nullptr) return false;
+    if (path == nullptr) return false;
+    fileSlot.close();
+    if (!mountCard()) return false;
 
     ::File entry = SD.open(path, FILE_READ);
     const bool result = entry && entry.isDirectory();
     if (entry) entry.close();
+    unmountCard();
     return result;
 }
 
 bool StorageSD::fileExists(const char* path)
 {
-    if (!sdAvailable || path == nullptr) return false;
+    if (path == nullptr) return false;
+    fileSlot.close();
+    if (!mountCard()) return false;
 
     ::File entry = SD.open(path, FILE_READ);
     const bool result = entry && !entry.isDirectory();
     if (entry) entry.close();
+    unmountCard();
     return result;
 }
 

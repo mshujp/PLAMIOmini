@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "StorageBase.h"
 #include <Arduino.h>
@@ -7,9 +7,12 @@
 
 namespace PLAMIOmini {
 
+class StorageSD;
+
 class StorageSDFile : public StorageBaseFile
 {
 public:
+    explicit StorageSDFile(StorageSD* owner) : owner(owner) {}
     ~StorageSDFile() override;
 
     bool openRead(const char* path);
@@ -22,6 +25,7 @@ public:
     bool closeWrite() override;
 
 private:
+    StorageSD* owner = nullptr;
     ::File file;
     uint32_t fileSize = 0;
 };
@@ -34,7 +38,7 @@ public:
 
     bool begin() override;
     void end() override;
-    bool isAvailable() const override { return sdAvailable; }
+    bool isAvailable() const override;
 
     File* openRead(const char* path) override;
     File* openRead(const char* gameId, const char* fileName) override;
@@ -45,15 +49,25 @@ protected:
     StorageBaseFile* openWrite(const char* gameId, const char* fileName, bool append) override;
 
 private:
+    friend class StorageSDFile;
+
     static constexpr size_t PATH_MAX_LENGTH = 128;
     static constexpr const char* ROOT_DIR = "/PLAMIO_Games";
+    static constexpr uint32_t AVAILABILITY_CACHE_MSEC = 1000;
 
     StorageSDConfig config;
-    bool sdAvailable = false;
+    bool spiReady = false;
+    bool sdMounted = false;
     SPIClass* spi = nullptr;
     bool ownsSpi = false;
     StorageSDFile fileSlot;
+    mutable bool availabilityCached = false;
+    mutable bool cachedAvailable = false;
+    mutable uint32_t lastAvailabilityCheckMsec = 0;
 
+    bool mountCard();
+    void unmountCard();
+    void updateAvailabilityCache(bool available) const;
     bool makeDataPath(char* output, size_t outputSize, const char* gameId, const char* fileName) const;
     bool ensureDirectory(const char* path);
     static bool isValidFileName(const char* fileName);

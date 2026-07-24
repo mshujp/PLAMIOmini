@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // PLAMIO mini
 // AI-Friendly Game Framework
 //
@@ -512,6 +512,8 @@ using AudioConfig = std::variant<
 // =====================================================================
 class Storage {
 public:
+    // Checks whether the storage is currently available.
+    // The result may be cached briefly to avoid frequent hardware access.
     virtual bool isAvailable() const = 0;
 
     // ## Read-only resource file
