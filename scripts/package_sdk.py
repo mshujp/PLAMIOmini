@@ -11,21 +11,16 @@ project_dir = (Path(env.subst("$PROJECT_DIR")) if env is not None
 output_path_sdk = project_dir / "docs" / "PLAMIOmini_SDK.zip"
 output_path_project = project_dir / "docs" / "PLAMIOmini_PROJECT.zip"
 input_files_sdk = (
+    (project_dir / "README.md", "README.md"),
     (project_dir / "src" / "PLAMIOmini.h", "PLAMIOmini.h"),
     (project_dir / "docs" / "PLAMIOmini_AI_GUIDELINES.md", "PLAMIOmini_AI_GUIDELINES.md"),
 
-    (project_dir / "examples" / "00B_Hardware_Setup" / "00B_Hardware_Setup.ino",
-     "examples/00B_Hardware_Setup/00B_Hardware_Setup.ino"),
-    (project_dir / "examples" / "01_Hello_PLAMIO" / "01_Hello_PLAMIO.ino",
-     "examples/01_Hello_PLAMIO/01_Hello_PLAMIO.ino"),
-    (project_dir / "examples" / "02_Input_Basics" / "02_Input_Basics.ino",
-     "examples/02_Input_Basics/02_Input_Basics.ino"),
-    (project_dir / "examples" / "03_Graphics_Basics" / "03_Graphics_Basics.ino",
-     "examples/03_Graphics_Basics/03_Graphics_Basics.ino"),
-    (project_dir / "examples" / "04_Audio_Basics" / "04_Audio_Basics.ino",
-     "examples/04_Audio_Basics/04_Audio_Basics.ino"),
-    (project_dir / "examples" / "05_Save_Data" / "05_Save_Data.ino",
-     "examples/05_Save_Data/05_Save_Data.ino"),
+    (project_dir / "examples" / "00B_Hardware_Setup" / "00B_Hardware_Setup.ino", "examples/00B_Hardware_Setup/00B_Hardware_Setup.ino"),
+    (project_dir / "examples" / "01_Hello_PLAMIO" / "01_Hello_PLAMIO.ino", "examples/01_Hello_PLAMIO/01_Hello_PLAMIO.ino"),
+    (project_dir / "examples" / "02_Input_Basics" / "02_Input_Basics.ino", "examples/02_Input_Basics/02_Input_Basics.ino"),
+    (project_dir / "examples" / "03_Graphics_Basics" / "03_Graphics_Basics.ino", "examples/03_Graphics_Basics/03_Graphics_Basics.ino"),
+    (project_dir / "examples" / "04_Audio_Basics" / "04_Audio_Basics.ino", "examples/04_Audio_Basics/04_Audio_Basics.ino"),
+    (project_dir / "examples" / "05_Save_Data" / "05_Save_Data.ino", "examples/05_Save_Data/05_Save_Data.ino"),
 )
 output_path_sdk.parent.mkdir(parents=True, exist_ok=True)
 with ZipFile(output_path_sdk, "w", compression=ZIP_DEFLATED) as archive:
