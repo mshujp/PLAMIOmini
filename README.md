@@ -1,6 +1,6 @@
 ﻿# PLAMIO mini
 
-> **AI-Friendly Game Framework for Arduino IDE**
+> **AI-Friendly Game / UI Framework for Arduino IDE**
 
 A lightweight game framework designed for AI-assisted game development.
 
@@ -15,6 +15,7 @@ For the full feature set, use PLAMIO instead.
 -   AI-friendly public API
 -   Portable game code across supported Arduino.
 -   Unified Graphics / Input / Audio / Storage APIs
+-   Supports both game UIs and Arduino-based sensor monitoring or data logging applications.
 -   Fixed 30 FPS game loop
 -   Built-in SaveData helper
 -   2D viewport and scrolling support
@@ -37,16 +38,15 @@ For the full feature set, use PLAMIO instead.
 | ![](docs/images/ss01.png) | ![](docs/images/ss02.png) |
 | ![](docs/images/ss03.png) | ![](docs/images/ss04.png) |
 | ![](docs/images/ss05.png) | ![](docs/images/ss06.png) |
+| ![](docs/images/ss07.png) | ![](docs/images/ss08.png) |
 
 ------------------------------------------------------------------------
 
 # Philosophy
 
-PLAMIO is designed so that both humans and AI can write games using the
-same simple API.
+PLAMIO is designed so that both humans and AI can write games using the same simple API.
 
-Games implement only a small set of interfaces while the runtime manages
-graphics, input, audio, storage, and the game loop.
+Games implement only a small set of interfaces while the runtime manages graphics, input, audio, storage, and the game loop.
 
 This allows game logic to remain clean, portable, and easy to generate.
 
@@ -119,7 +119,7 @@ see the example [00A_AI_Game_Generation](examples/00A_AI_Game_Generation/00A_AI_
 
 ------------------------------------------------------------------------
 
-# Sample Games
+# Samples
 
 | Sample | Description |
 |--------|-------------|
@@ -137,6 +137,8 @@ see the example [00A_AI_Game_Generation](examples/00A_AI_Game_Generation/00A_AI_
 | [09_Star_Dodge](examples/09_Star_Dodge/09_Star_Dodge.ino) | Avoidance game with effects |
 | [10_Reversi](examples/10_Reversi/10_Reversi.ino) | Board game and CPU logic |
 | [11_Memory_Tiles](examples/11_Memory_Tiles/11_Memory_Tiles.ino) | Memory game with state transitions |
+| [12_IMU_Monitor](examples/12_IMU_Monitor/12_IMU_Monitor.ino) | IMU sensor monitoring and simple tilt visualization |
+| [13_GPS_Logger](examples/13_GPS_Logger/13_GPS_Logger.ino) | GPS monitoring and CSV data logging to an SD card |
 
 Each sample is placed under the [`examples`](examples) directory.
 
@@ -247,6 +249,8 @@ For RP2040 and RP2350, PLAMIOmini uses the I2S library included with the Earle P
 
 *1: When emulated EEPROM is written while I2S audio is playing on RP2350, audible noise may occur. Using I2S and emulated EEPROM together is therefore not recommended.
 
+
+Hardware test reports are welcome, especially for currently unverified boards such as ESP32-S3, ESP32-C3, and ESP32-C6.
 ------------------------------------------------------------------------
 
 # License
@@ -258,8 +262,6 @@ MIT License
 This project includes a minimized subset of LovyanGFX 1.2.26.
 
 Only the components required by PLAMIOmini are included.
-Unused panels, buses, touch drivers, platform implementations,
-and font data have been removed.
+Unused panels, buses, touch drivers, platform implementations, and font data have been removed.
 
-The original copyright notices and applicable license files
-for all retained components are preserved.
+The original copyright notices and applicable license files for all retained components are preserved.
