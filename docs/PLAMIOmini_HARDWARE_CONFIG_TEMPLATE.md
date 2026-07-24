@@ -52,6 +52,10 @@
      LATCH    : -1
      DATA     : -1
 
+     # Optional additional GPIO buttons
+     VOL_UP   : -1
+     VOL_DOWN : -1
+     MUTE     : -1
 
 ## Audio ===============================================
 
