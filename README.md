@@ -233,7 +233,7 @@ For RP2040 and RP2350, PLAMIOmini uses the I2S library included with the Earle P
 
 ## PLAMIOmini Hardware Compatibility
 
-| Platform | ILI9341 | SSD1306 | PWM | I2S | GPIO | SNES | Emulated EEPROM | SD |
+| Platform | ILI9341 | SSD1306 | PWM | I2S | GPIO | SNES Pad | Emulated EEPROM | SD |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | RP2040 | ✅ | ✅ | ✅ |  | ✅ |  | ✅ | ✅ |
 | RP2350 | ✅ |  |  | ✅ |  | ✅ | ✅ *1 | ✅ |
